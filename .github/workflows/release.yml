@@ -1,0 +1,28 @@
+name: create release
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  PROJECT_LIB_PATH: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        runtime: [linux-x64, win-x64, osx-x64, osx-arm64]
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v6
+
+  
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
