@@ -1,17 +1,76 @@
 ---
+import MainLayout from "../layouts/MainLayout.astro";
+import SectionRenderer from "../components/SectionRenderer.astro";
+import type { SectionData } from "../types/landing";
 
+const sectionsFromBackend: SectionData[] = [
+  {
+    type: "hero",
+    props: {
+      title: "Какой то текст",
+      description:
+        "Очень длинное описание которое только можно придумать.",
+      buttonText: "Текст на кнопке"
+    },
+  },
+  {
+    type: 'features',
+    props: {
+      items: [
+        { title: "Быстро", text: "Очень быстро" },
+        { title: "Круто", text: "Очень круто" },
+        { title: "Дорого", text: "Очень дорого" },
+      ]
+    }
+  },
+  {
+    type: 'pricing',
+    props: {
+      title: "Мои туры",
+      plans: [
+        {
+          name: "Уикенд",
+          price: "15 453₽",
+          description: "Короткая перезагрузка вдали от городской суеты",
+          features: [
+            "2 дня / 1 ночь",
+            "Уютный глэмпинг",
+            "Завтраки включены",
+            "Трансфер из города"
+          ],
+          buttonText: "Забронировать"
+        },
+        {
+          name: "Активный",
+          price: "45 678₽",
+          isPopular: true,
+          description: "Самая крутецкая программа для любителей приключений",
+          features: [
+            "78 дней / 2 ночи",
+            "Конные прогулки",
+            "Профессиональный гид",
+          ],
+          buttonText: "Хочу поехать"
+        },
+        {
+          name: "Экспедиция",
+          price: "890 000₽",
+          description: "Глубокое погружение в магию нашего города",
+          features: [
+            "10 дней / 9 ночей",
+            "Проживание в отелях 4*",
+            "Вертолетная экскурсия",
+            "Личный майбах который довезёт из общаги",
+            "Фотосессия в подарок"
+          ],
+          buttonText: "Узнать подробнее"
+        }
+      ]
+    }
+  },
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Tveritnev Web</title>
-	</head>
-	<body>
-		<h1>Tveritnev Web</h1>
-	</body>
-</html>
+<MainLayout title="Лендинг Tveritnev">
+  {sectionsFromBackend.map((section) => <SectionRenderer section={section} />)}
+</MainLayout>
