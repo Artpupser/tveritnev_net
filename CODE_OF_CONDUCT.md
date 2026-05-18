@@ -2,7 +2,7 @@
 
 ## Our Pledge
 
-We, as contributors and maintainers of **Template**, pledge to make participation in our project a harassment-free experience for everyone — regardless of age, experience level, nationality, gender, sexual orientation, religion, or any other characteristic.
+We, as contributors and maintainers of **tveritnev_net**, pledge to make participation in our project a harassment-free experience for everyone — regardless of age, experience level, nationality, gender, sexual orientation, religion, or any other characteristic.
 
 ---
 

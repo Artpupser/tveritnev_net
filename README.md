@@ -1,17 +1,17 @@
 ﻿<div align="center">
 
-# 📝 Template
+# 🏗️ tveritnev_net
 
-![Template](https://img.shields.io/badge/template-black?style=for-the-badge&logo=template&logoColor=white)
+<!-- ![Template](https://img.shields.io/badge/template-black?style=for-the-badge&logo=template&logoColor=white) -->
 ![License](https://img.shields.io/badge/MIT-black?style=for-the-badge)
 
 <!-- ![.NET](https://img.shields.io/badge/.NET-10.0-blue?style=for-the-badge) -->
 <!-- ![.Version](https://img.shields.io/github/v/release/Artpupser/Template?style=for-the-badge) -->
 
 
-#### [Template](https://github.com/Artpupser/template) is template for other github repo. 🎯
+#### [Template](https://github.com/Artpupser/tveritnev_net) is tveritnev_net, lending for anatoly_tveritnev. 🎯
 
-<img src="https://github.com/Artpupser/template/blob/main/assets/banner.jpg" style="border-radius: 20px; max-height: 500px">
+<img src="https://github.com/Artpupser/tveritnev_net/blob/main/assets/banner.jpg" style="border-radius: 20px; max-height: 500px">
 
 </div>
 
@@ -36,17 +36,29 @@
 
 </div>
 
-## 🧵 Usage
+## 🧵 Launch
 
-1. Run 1
-2. Run 2
-3. Run 3
+1. Build client
+
+```bash
+cd ./frontend
+pnpm run build
+cd ../frontend
+```
+
+2. Run docker
+
+```bash
+docker compose up --build
+```
+
+3. Go to link!
 
 ## 👀 Preview
 
 <div align="center">
 
-<img src="https://github.com/Artpupser/template/blob/main/assets/preview1.jpg" style="border-radius: 20px;">
+<img src="https://github.com/Artpupser/tveritnev_net/blob/main/assets/preview1.jpg" style="border-radius: 20px;">
 
 </div>
 

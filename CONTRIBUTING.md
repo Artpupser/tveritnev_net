@@ -1,6 +1,6 @@
-# Contributing to Your Project
+# Contributing to tveritnev_net
 
-Thank you for your interest in contributing to **Your Project**! Bug fixes, new features, and documentation improvements are all welcome.
+Thank you for your interest in contributing to **tveritnev_net**! Bug fixes, new features, and documentation improvements are all welcome.
 
 ---
 
