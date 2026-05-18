@@ -7,25 +7,25 @@ ALTER DATABASE myapp SET timezone TO 'Europe/Moscow';
 
 CREATE TABLE moderator (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    username NVARCHAR(128) NOT NULL,
-    password_hash NVARCHAR(128) NOT NULL,
+    username TEXT NOT NULL,
+    password_hash TEXT NOT NULL
 );
 
 
 CREATE TABLE session (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id INT NOT NULL REFERENCES moderator(id) ON DELETE CASCADE,
     token TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     expired_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE configuration {
+CREATE TABLE configuration (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     panel_json TEXT NOT NULL,
-    settings_json TEXT NOT NULL,
-}
+    settings_json TEXT NOT NULL
+);
 
 
 -- TRIGGERS: automatic clear sessions

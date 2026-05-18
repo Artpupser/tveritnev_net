@@ -25,20 +25,20 @@ public sealed class ModeratorRepository(IDatabaseConnectionFactory databaseConne
       return await userRepo.GetFromId(sessionDatabaseModel.UserId, cancellationToken);
    }
    
-   public async Task<Option<ModeratorDatabaseModel>> Create(int id, string username, string passwordHash, CancellationToken cancellationToken) {
+   public async Task<Option<ModeratorDatabaseModel>> Create(string username, string passwordHash, CancellationToken cancellationToken) {
       try {
          if (await ExistsAsync("username", username, cancellationToken)) 
             return Option<ModeratorDatabaseModel>.Fail();
 
          var connection = DatabaseConnectionFactory.GetConnection();
          var commandDefinition =
-            new CommandDefinition($"INSERT INTO {TableName} (id, username, password) VALUES (@Id, @Username, @Password ) ON CONFLICT (id) DO NOTHING RETURNING id",
-               new {Id=id, Username = username, Password = passwordHash }, cancellationToken: cancellationToken);
+            new CommandDefinition($"INSERT INTO {TableName} (username, password_hash) VALUES (@Username, @PasswordHash ) RETURNING id",
+               new {Username = username, PasswordHash = passwordHash }, cancellationToken: cancellationToken);
          var scalarId = await connection.ExecuteScalarAsync<int>(commandDefinition);
          if (scalarId is < 0) {
             return Option<ModeratorDatabaseModel>.Fail();
          }
-         return await this.GetFromId(id, cancellationToken);
+         return await this.GetFromId(scalarId, cancellationToken);
       } catch {
          return Option<ModeratorDatabaseModel>.Fail();
       }

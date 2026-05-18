@@ -33,15 +33,15 @@ public sealed class ConfigurationRepository(IDatabaseConnectionFactory databaseC
       }
    }
    
-   public async Task<Option> CreateSafe(int id, string panelJson, string settingsJson, CancellationToken cancellationToken) {
+   public async Task<Option> CreateSafe(string panelJson, string settingsJson, CancellationToken cancellationToken) {
       try
       {
          var connection = DatabaseConnectionFactory.GetConnection();
          var commandDefinition =
             new CommandDefinition(
-               commandText: $"INSERT INTO {TableName} (id, panel_json, settings_json) VALUES (@Id, @PanelJson, @SettingsJson)  ON CONFLICT (id) DO NOTHING RETURNING id",
+               commandText: $"INSERT INTO {TableName} (panel_json, settings_json) VALUES (@PanelJson, @SettingsJson) RETURNING id",
                parameters: new
-                  { PanelJson = panelJson, SettingsJson = settingsJson, Id=id },
+                  { PanelJson = panelJson, SettingsJson = settingsJson },
                cancellationToken: cancellationToken);
          var scalarId = await connection.ExecuteScalarAsync(commandDefinition);
          return scalarId is < 0

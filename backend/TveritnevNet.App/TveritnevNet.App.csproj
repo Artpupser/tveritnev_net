@@ -11,21 +11,23 @@
         <RootNamespace>TveritnevNet.App</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
-        <Content Include="**\*" Exclude="bin\**;obj\**" />
-        <None Include="README.md" Pack="true" PackagePath="\" />
-    </ItemGroup>
-    <ItemGroup>
-        <FilesProject Include="$(ProjectDir)/environment/**/*" />
-    </ItemGroup>
-    <ItemGroup>
         <PackageReference Include="dotenv.net" Version="4.0.2" />
         <PackageReference Include="Npgsql" Version="10.0.2" />
         <PackageReference Include="PupaMVCF.Framework" Version="0.2.0" />
     </ItemGroup>
+    <ItemGroup>
+        <Content Include="appsettings.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="**\*" Exclude="bin\**;obj\**"/>
+    </ItemGroup>
+    <ItemGroup>
+        <FilesProject Include="$(ProjectDir)/environment/**/*"/>
+    </ItemGroup>
     <Target Name="BuildEnv" AfterTargets="Build">
-        <Copy SourceFiles="@(FilesProject)" DestinationFolder="$(TargetDir)/%(RecursiveDir)" />
+        <Copy SourceFiles="@(FilesProject)" DestinationFolder="$(TargetDir)/%(RecursiveDir)"/>
     </Target>
     <Target Name="PublishEnv" AfterTargets="Publish">
-        <Copy SourceFiles="@(FilesProject)" DestinationFolder="$(PublishDir)/%(RecursiveDir)" />
+        <Copy SourceFiles="@(FilesProject)" DestinationFolder="$(PublishDir)/%(RecursiveDir)"/>
     </Target>
 </Project>
