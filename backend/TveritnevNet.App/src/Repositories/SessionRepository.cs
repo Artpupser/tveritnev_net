@@ -4,9 +4,10 @@ using PupaLib.Core;
 
 using PupaMVCF.Framework.Database;
 
-using VelvetScroll.App.Models.Database;
+using TveritnevNet.App.Models.Database;
 
-namespace VelvetScroll.App.Repositories;
+
+namespace TveritnevNet.App.Repositories;
 
 public sealed class SessionRepository(IDatabaseConnectionFactory databaseConnectionFactory)
    : Repository<SessionDatabaseModel>(databaseConnectionFactory) {

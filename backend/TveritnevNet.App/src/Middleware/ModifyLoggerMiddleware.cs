@@ -7,9 +7,9 @@ using PupaMVCF.Framework.Middleware;
 
 namespace TveritnevNet.App.Middleware;
 
-public sealed class TemplateMiddleware : IMiddleware {
+public sealed class ModifyLoggerMiddleware(ILogger<ModifyLoggerMiddleware> logger) : IMiddleware {
    public Task<Option> Invoke(Request request, Response response, CancellationToken cancellationToken) {
-      WebApp.Context.Logger.LogWarning("Template middleware!");
+      logger.LogInformation($"REQUEST:\n\tToken: {request.GetCookie("Token")}\n\tPath: {request.Path}\n\tIpV4: {request.IpAddress.ToString()}\n");
       return Option.OkTask();
    }
 }
