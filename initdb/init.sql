@@ -22,6 +22,7 @@ CREATE TABLE session (
 );
 
 CREATE TABLE configuration {
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     panel_json TEXT NOT NULL,
     settings_json TEXT NOT NULL,
 }

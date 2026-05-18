@@ -4,12 +4,56 @@ using PupaLib.Core;
 
 using PupaMVCF.Framework.Database;
 
+using TveritnevNet.App.Models;
 using TveritnevNet.App.Models.Database;
 
 namespace TveritnevNet.App.Repositories;
 
 public sealed class ConfigurationRepository(IDatabaseConnectionFactory databaseConnectionFactory)
    : Repository<ConfigurationDatabaseModel>(databaseConnectionFactory) {
+
+   public async Task<Option> Refresh(ConfigurationModel configurationModel, int whereId, CancellationToken cancellationToken) {
+      try
+      {
+         var connection = DatabaseConnectionFactory.GetConnection();
+         var commandDefinition =
+            new CommandDefinition(
+               commandText: $"UPDATE {TableName} SET panel_json=@PanelJson,settings_json=@SettingsJson WHERE id=@Id",
+               parameters: new
+                  { PanelJson = configurationModel.PanelJson, SettingsJson = configurationModel.SettingsJson, Id=whereId },
+               cancellationToken: cancellationToken);
+         var id = await connection.ExecuteAsync(commandDefinition);
+         return id is < 0
+            ? Option.Fail()
+            : Option.Ok();
+      }
+      catch 
+      {
+         return Option.Fail();
+      }
+   }
+   
+   public async Task<Option> CreateSafe(int id, string panelJson, string settingsJson, CancellationToken cancellationToken) {
+      try
+      {
+         var connection = DatabaseConnectionFactory.GetConnection();
+         var commandDefinition =
+            new CommandDefinition(
+               commandText: $"INSERT INTO {TableName} (id, panel_json, settings_json) VALUES (@Id, @PanelJson, @SettingsJson)  ON CONFLICT (id) DO NOTHING RETURNING id",
+               parameters: new
+                  { PanelJson = panelJson, SettingsJson = settingsJson, Id=id },
+               cancellationToken: cancellationToken);
+         var scalarId = await connection.ExecuteScalarAsync(commandDefinition);
+         return scalarId is < 0
+            ? Option.Fail()
+            : Option.Ok();
+      }
+      catch 
+      {
+         return Option.Fail();
+      }
+   }
+   
    public async Task<Option<ConfigurationDatabaseModel>> First(CancellationToken cancellationToken) {
       try
       {

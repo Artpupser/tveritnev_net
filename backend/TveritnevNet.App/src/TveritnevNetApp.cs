@@ -13,4 +13,5 @@ public sealed class TveritnevNetApp(
    IRouter router,
    ILogger<TveritnevNetApp> logger)
    : WebApp(configuration, router, validator,
-      logger);
+      logger) {
+}
