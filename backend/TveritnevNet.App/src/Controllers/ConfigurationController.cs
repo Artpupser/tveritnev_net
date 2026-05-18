@@ -12,8 +12,7 @@ public sealed class ConfigurationController(IDatabaseConnectionFactory databaseC
    private readonly SessionRepository _sessionRepository = new(databaseConnectionFactory);
    private readonly ConfigurationRepository _configurationRepository = new(databaseConnectionFactory);
 
-   [ControllerHandler("/configuration/panel", HttpMethodType.GET, typeof(ModifyLoggerMiddleware),
-      typeof(ModeratorSessionMiddleware))]
+   [ControllerHandler("/configuration/panel", HttpMethodType.GET, typeof(ModifyLoggerMiddleware))]
    private async Task ConfigurationPanelHandler(Request request, Response response, CancellationToken cancellationToken) {
       var contentOption = await _configurationRepository.FirstPanel(cancellationToken);
       if (contentOption.Out(out var content)) {
