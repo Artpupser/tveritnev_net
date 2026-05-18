@@ -93,6 +93,7 @@ docker compose up --build
 - add: environment frontend 
 - add: environment backend
 - add: database scheme
+- add: assets/banner.jpg
 
 ## ⚖️ License
 
