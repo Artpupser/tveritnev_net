@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "tablePositions": [
+      {
+        "name": "moderator",
+        "schemaName": "public",
+        "x": 12,
+        "y": 226
+      },
+      {
+        "name": "session",
+        "schemaName": "public",
+        "x": 481.05517578125,
+        "y": 226
+      },
+      {
+        "name": "configuration",
+        "schemaName": "public",
+        "x": 256,
+        "y": 52
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": []
+  },
+  "views": {}
+}
