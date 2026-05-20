@@ -1,34 +1,58 @@
 export interface HeroProps {
   title: string;
   description: string;
-  buttonText: string;
-  ctaText?: string;
+  buttonText?: string;
+  videoUrl?: string;
 }
 
-export interface FeatureItem {
-  title: string;
-  text: string;
+export interface SocialLink {
+  name: string;
+  url: string;
 }
 
-export interface FeaturesProps {
-  items: FeatureItem[];
+export interface AboutProps {
+  avatarUrl: string;
+  name: string;
+  skills: string[];
+  badges: string[];
+  socials: SocialLink[];
 }
 
-export interface PricingPlan {
+export interface SwitcherPlan {
   name: string;
   price: string;
-  description: string;
   features: string[];
-  isPopular?: boolean;
-  buttonText: string;
 }
 
-export interface PricingProps {
+export interface ServiceBlock {
   title: string;
-  plans: PricingPlan[];
+  description: string;
+  phone: string;
+  waUrl: string;
+  vkUrl: string;
+  tgUrl: string;
+  plans: SwitcherPlan[];
+}
+
+export interface ServiceSwitcherProps {
+  english: ServiceBlock;
+  guide: ServiceBlock;
+}
+
+export interface ReviewItem {
+  text: string;
+  author: string;
+}
+
+export interface ReviewsProps {
+  title: string;
+  row1: ReviewItem[];
+  row2: ReviewItem[];
+  row3: ReviewItem[];
 }
 
 export type SectionData = 
   | { type: 'hero'; props: HeroProps }
-  | { type: 'features'; props: FeaturesProps }
-  | { type: 'pricing'; props: PricingProps };
+  | { type: 'about'; props: AboutProps }
+  | { type: 'serviceSwitcher'; props: ServiceSwitcherProps }
+  | { type: 'reviews'; props: ReviewsProps };
