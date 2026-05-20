@@ -5,7 +5,7 @@ const Reviews: React.FC<ReviewsProps> = ({ title, row1, row2, row3 }) => {
   const doubleRow = (arr: any[]) => [...arr, ...arr, ...arr];
 
   return (
-    <section className="py-20 bg-white overflow-hidden">
+    <section className="py-20 overflow-hidden">
       <style>{`
         @keyframes scrollLeft {
           0% {

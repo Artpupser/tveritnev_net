@@ -28,8 +28,8 @@ export interface ServiceBlock {
   title: string;
   description: string;
   phone: string;
-  waUrl: string;
   vkUrl: string;
+  maxUrl: string;
   tgUrl: string;
   plans: SwitcherPlan[];
 }

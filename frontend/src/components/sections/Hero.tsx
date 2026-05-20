@@ -29,6 +29,8 @@ const Hero: React.FC<HeroProps> = ({
           </video>
 
           <div className="absolute inset-0 bg-black/50 z-10" />
+
+          <div className="absolute bottom-0 left-0 right-0 h-50 bg-linear-to-t from-white to-transparent z-10 pointer-events-none" />
         </>
       )}
 
@@ -48,8 +50,8 @@ const Hero: React.FC<HeroProps> = ({
           <button
             className={`px-8 py-4 rounded-xl font-bold uppercase text-xs tracking-wider border-2 border-dashed  transition-all duration-200 active:scale-95 ${
               isVideo
-                ? "border-blue-200 text-white bg-white/5 hover:bg-white hover:text-black hover:shadow-lg"
-                : "border-black/30 text-black bg-black/5 hover:bg-black hover:text-white hover:border-black"
+                ? "border-blue-200 text-white bg-white/5 hover:text-black hover:border-black hover:shadow-lg"
+                : "border-black/30 text-black bg-black/5 hover:text-white hover:border-black"
             }`}
           >
             {buttonText}

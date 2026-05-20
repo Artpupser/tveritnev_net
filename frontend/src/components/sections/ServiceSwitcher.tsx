@@ -10,7 +10,7 @@ const ServiceSwitcher: React.FC<ServiceSwitcherProps> = ({
   const currentData = activeTab === "english" ? english : guide;
 
   return (
-    <section className="py-20">
+    <section id="services" className="py-20">
       <div className="container mx-auto max-w-6xl">
         <div className="border-2 border-dashed border-blue-200 border-slate-250 rounded-3xl p-8 bg-white relative">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-dashed border-slate-200 pb-6 mb-8">
@@ -66,19 +66,19 @@ const ServiceSwitcher: React.FC<ServiceSwitcherProps> = ({
               </span>
 
               <a
-                href={currentData.waUrl}
-                target="_blank"
-                className="w-full py-3 px-4 text-center border-2 border-dashed border-slate-200 hover:border-slate-950 text-slate-700 hover:text-slate-950 hover:bg-slate-50 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95"
-              >
-                Message WA
-              </a>
-
-              <a
                 href={currentData.vkUrl}
                 target="_blank"
                 className="w-full py-3 px-4 text-center border-2 border-dashed border-slate-200 hover:border-slate-950 text-slate-700 hover:text-slate-950 hover:bg-slate-50 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95"
               >
-                Message VK
+                Сообщение VK
+              </a>
+
+              <a
+                href={currentData.maxUrl}
+                target="_blank"
+                className="w-full py-3 px-4 text-center border-2 border-dashed border-slate-200 hover:border-slate-950 text-slate-700 hover:text-slate-950 hover:bg-slate-50 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95"
+              >
+                Сообщение MAX
               </a>
 
               <a
@@ -86,7 +86,7 @@ const ServiceSwitcher: React.FC<ServiceSwitcherProps> = ({
                 target="_blank"
                 className="w-full py-3 px-4 text-center border-2 border-dashed border-slate-200 hover:border-slate-950 text-slate-700 hover:text-slate-950 hover:bg-slate-50 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95"
               >
-                Message Telegram
+                Сообщение Telegram
               </a>
             </div>
 
