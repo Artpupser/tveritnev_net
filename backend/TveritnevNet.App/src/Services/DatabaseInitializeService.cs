@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 using PupaLib.FileIO;
 
@@ -12,7 +13,7 @@ namespace TveritnevNet.App.Services;
 public sealed class DatabaseInitializeService {
    private readonly IDatabaseConnectionFactory _connectionFactory;
    private readonly IConfiguration _configuration;
-
+   private readonly ILogger<DatabaseInitializeService> _logger;
    public DatabaseInitializeService(IDatabaseConnectionFactory connectionFactory, IConfiguration configuration) {
       _connectionFactory = connectionFactory;
       _configuration = configuration;
@@ -51,7 +52,7 @@ public sealed class DatabaseInitializeService {
             throw new Exception($"Default configs is empty, {fullFileName}");
          }
 
-         var defaultFileName = $"default_{file}";
+         var defaultFileName = $"default_{fileName}";
          
          if (!await configsRepo.ExistsAsync("name", defaultFileName, cancellationToken)) {
             await configsRepo.Create(defaultFileName, json, cancellationToken);

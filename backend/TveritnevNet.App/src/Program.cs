@@ -54,6 +54,7 @@ public static class Program {
       builder.Services.AddSingleton<DatabaseInitializeService>();
       builder.Services.AddHostedService<TveritnevNetApp>();
       var host = builder.Build();
+      host.Services.GetRequiredService<DatabaseInitializeService>();
       await host.RunAsync();
    }
 }

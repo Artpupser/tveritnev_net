@@ -5,7 +5,9 @@ namespace TveritnevNet.App.Models.Database;
 
 
 public enum UserDatabaseRole {
+   [EnumMember(Value = "member")]
    Member = 0,
+   [EnumMember(Value = "admin")]
    Admin = 1,
 }
 

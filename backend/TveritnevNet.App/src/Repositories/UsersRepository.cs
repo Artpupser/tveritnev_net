@@ -43,7 +43,7 @@ public sealed class UserRepository(IDatabaseConnectionFactory databaseConnection
          var connection = DatabaseConnectionFactory.GetConnection();
          var commandDefinition =
             new CommandDefinition($"INSERT INTO {TableName} (username, password, role) VALUES (@Username, @Password, @Role::user_role) RETURNING id",
-               new {Username = username, Password = password, Role = role }, cancellationToken: cancellationToken);
+               new {Username = username, Password = password, Role = role.ToString().ToLower() }, cancellationToken: cancellationToken);
          var scalarId = await connection.ExecuteScalarAsync<int>(commandDefinition);
          if (scalarId is < 0) {
             return Option<UsersDatabaseModel>.Fail();
