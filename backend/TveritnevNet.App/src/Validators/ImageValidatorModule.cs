@@ -6,11 +6,10 @@ using SixLabors.ImageSharp;
 namespace TveritnevNet.App.Validators;
 
 public sealed class ImageValidatorModule : IValidatorModule {
-   public Task<bool> Valid(object? instance, string options, Request request, Response response, CancellationToken cancellationToken) {
+   public Task<bool> Valid(object? instance, string options, Request request, Response response,
+      CancellationToken cancellationToken) {
       try {
-         if (instance is not byte[] bytes) {
-            return Task.FromResult(false);
-         }
+         if (instance is not byte[] bytes) return Task.FromResult(false);
          Image.Identify(bytes);
          return Task.FromResult(true);
       } catch {

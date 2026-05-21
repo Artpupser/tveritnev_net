@@ -6,5 +6,5 @@ namespace TveritnevNet.App.Models.Database;
 public record ConfigsDatabaseModel {
    [Column("id")] public int Id { get; init; }
    [Column("name")] public string Name { get; set; }
-   [Column("json")] public string Json { get; init; } 
+   [Column("json")] public string Json { get; init; }
 }

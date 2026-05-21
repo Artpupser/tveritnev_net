@@ -11,17 +11,15 @@ namespace TveritnevNet.App.Repositories;
 
 public sealed class UserRepository(IDatabaseConnectionFactory databaseConnectionFactory)
    : Repository<UsersDatabaseModel>(databaseConnectionFactory) {
-
    public async Task<Option<UsersDatabaseModel>> GetFromSession(Request request, CancellationToken cancellationToken) {
       var token = request.GetCookie("Token").Content;
-      if (string.IsNullOrWhiteSpace(token)) 
+      if (string.IsNullOrWhiteSpace(token))
          return Option<UsersDatabaseModel>.Fail();
-      var sessionRepo = new SessionRepository(this.DatabaseConnectionFactory);
+      var sessionRepo = new SessionRepository(DatabaseConnectionFactory);
       if (!(await sessionRepo.FirstWhere("token", token, cancellationToken)).Out(
-             out var sessionDatabaseModel)) {
+             out var sessionDatabaseModel))
          return Option<UsersDatabaseModel>.Fail();
-      }
-      var userRepo = new UserRepository(this.DatabaseConnectionFactory);
+      var userRepo = new UserRepository(DatabaseConnectionFactory);
       return await userRepo.GetFromId(sessionDatabaseModel.UserId, cancellationToken);
    }
 
@@ -29,26 +27,27 @@ public sealed class UserRepository(IDatabaseConnectionFactory databaseConnection
       CancellationToken cancellationToken) {
       return Create(username, password, UserDatabaseRole.Admin, cancellationToken);
    }
-   
+
    public Task<Option<UsersDatabaseModel>> CreateMember(string username, string password,
       CancellationToken cancellationToken) {
       return Create(username, password, UserDatabaseRole.Member, cancellationToken);
    }
-   
-   public async Task<Option<UsersDatabaseModel>> Create(string username, string password, UserDatabaseRole role, CancellationToken cancellationToken) {
+
+   public async Task<Option<UsersDatabaseModel>> Create(string username, string password, UserDatabaseRole role,
+      CancellationToken cancellationToken) {
       try {
-         if (await ExistsAsync("username", username, cancellationToken)) 
+         if (await ExistsAsync("username", username, cancellationToken))
             return Option<UsersDatabaseModel>.Fail();
 
          var connection = DatabaseConnectionFactory.GetConnection();
          var commandDefinition =
-            new CommandDefinition($"INSERT INTO {TableName} (username, password, role) VALUES (@Username, @Password, @Role::user_role) RETURNING id",
-               new {Username = username, Password = password, Role = role.ToString().ToLower() }, cancellationToken: cancellationToken);
+            new CommandDefinition(
+               $"INSERT INTO {TableName} (username, password, role) VALUES (@Username, @Password, @Role::user_role) RETURNING id",
+               new { Username = username, Password = password, Role = role.ToString().ToLower() },
+               cancellationToken: cancellationToken);
          var scalarId = await connection.ExecuteScalarAsync<int>(commandDefinition);
-         if (scalarId is < 0) {
-            return Option<UsersDatabaseModel>.Fail();
-         }
-         return await this.GetFromId(scalarId, cancellationToken);
+         if (scalarId is < 0) return Option<UsersDatabaseModel>.Fail();
+         return await GetFromId(scalarId, cancellationToken);
       } catch {
          return Option<UsersDatabaseModel>.Fail();
       }

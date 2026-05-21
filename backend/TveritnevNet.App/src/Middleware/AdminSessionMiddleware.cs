@@ -4,6 +4,7 @@ using TveritnevNet.App.Models.Database;
 
 namespace TveritnevNet.App.Middleware;
 
-public sealed class AdminSessionMiddleware(IDatabaseConnectionFactory databaseConnectionFactory) : UserSessionMiddleware(databaseConnectionFactory) {
+public sealed class AdminSessionMiddleware(IDatabaseConnectionFactory databaseConnectionFactory)
+   : UserSessionMiddleware(databaseConnectionFactory) {
    protected override UserDatabaseRole Role => UserDatabaseRole.Admin;
 }

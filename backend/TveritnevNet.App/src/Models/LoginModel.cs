@@ -9,6 +9,7 @@ public record LoginModel {
    [ValidRule("string_range~1 128")]
    [JsonPropertyName("username")]
    public string Username { get; set; }
+
    [ValidRule("need~")]
    [ValidRule("string_range~1 128")]
    [JsonPropertyName("password")]

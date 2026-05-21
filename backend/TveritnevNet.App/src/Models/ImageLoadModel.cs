@@ -9,6 +9,7 @@ public record ImageLoadModel {
    [ValidRule("string_range~1 32")]
    [JsonPropertyName("name")]
    public string Name { get; set; }
+
    [ValidRule("need~")]
    [ValidRule("img~")]
    [JsonPropertyName("image")]

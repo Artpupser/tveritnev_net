@@ -12,5 +12,7 @@ public record SessionDatabaseModel {
    [Column("updated_at")] public DateTimeOffset UpdatedAt { get; init; }
    [Column("expired_at")] public DateTimeOffset ExpiredAt { get; init; }
 
-   public bool IsExpired() => ExpiredAt < DateTimeOffset.Now;
+   public bool IsExpired() {
+      return ExpiredAt < DateTimeOffset.Now;
+   }
 }

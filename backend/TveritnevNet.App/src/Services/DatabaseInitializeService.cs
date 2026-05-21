@@ -14,6 +14,7 @@ public sealed class DatabaseInitializeService {
    private readonly IDatabaseConnectionFactory _connectionFactory;
    private readonly IConfiguration _configuration;
    private readonly ILogger<DatabaseInitializeService> _logger;
+
    public DatabaseInitializeService(IDatabaseConnectionFactory connectionFactory, IConfiguration configuration) {
       _connectionFactory = connectionFactory;
       _configuration = configuration;
@@ -27,40 +28,33 @@ public sealed class DatabaseInitializeService {
       var userRepo = new UserRepository(_connectionFactory);
       var username = _configuration["ADMIN_USERNAME"] ??
                      throw new Exception("username admin not found in startup configuration");
-      if (await userRepo.ExistsAsync("username", username, cancellationToken)) {
-         return;
-      }
-      var password = CryptoUtils.Sha256(_configuration["ADMIN_PASSWORD"] ?? 
+      if (await userRepo.ExistsAsync("username", username, cancellationToken)) return;
+      var password = CryptoUtils.Sha256(_configuration["ADMIN_PASSWORD"] ??
                                         throw new Exception("password admin not found in startup configuration"));
       await userRepo.CreateAdmin(username, password, cancellationToken);
    }
-   
+
    private async Task InitConfigInDatabase(CancellationToken cancellationToken) {
       var configsRepo = new ConfigsRepository(_connectionFactory);
-      var publicFolder = VirtualIo.RootFolder.GetFolderIn("public") ?? throw new Exception("Public folder not found :(");
+      var publicFolder = VirtualIo.RootFolder.GetFolderIn("public") ??
+                         throw new Exception("Public folder not found :(");
       var fileNames = new[] { "site", "settings" };
 
       foreach (var fileName in fileNames) {
          var fullFileName = $"default.{fileName}.json";
          var file = publicFolder.GetFileIn(fullFileName);
-         if (file is null) {
-            throw new Exception($"Default config not found, {fullFileName}");
-         }
+         if (file is null) throw new Exception($"Default config not found, {fullFileName}");
 
          var json = await file.ReadStringAsync(cancellationToken);
-         if (string.IsNullOrWhiteSpace(json)) {
-            throw new Exception($"Default configs is empty, {fullFileName}");
-         }
+         if (string.IsNullOrWhiteSpace(json)) throw new Exception($"Default configs is empty, {fullFileName}");
 
          var defaultFileName = $"default_{fileName}";
-         
-         if (!await configsRepo.ExistsAsync("name", defaultFileName, cancellationToken)) {
+
+         if (!await configsRepo.ExistsAsync("name", defaultFileName, cancellationToken))
             await configsRepo.Create(defaultFileName, json, cancellationToken);
-         }
-         
-         if (!await configsRepo.ExistsAsync("name", fileName, cancellationToken)) {
+
+         if (!await configsRepo.ExistsAsync("name", fileName, cancellationToken))
             await configsRepo.Create(fileName, json, cancellationToken);
-         }
       }
    }
 

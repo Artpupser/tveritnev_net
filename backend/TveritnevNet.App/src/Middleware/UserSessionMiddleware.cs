@@ -13,19 +13,16 @@ public abstract class UserSessionMiddleware(IDatabaseConnectionFactory databaseC
    private readonly SessionRepository _sessionRepository = new(databaseConnectionFactory);
    private readonly UserRepository _userRepository = new(databaseConnectionFactory);
    protected abstract UserDatabaseRole Role { get; }
-   public async Task<Option> Invoke(Request request, Response response, CancellationToken cancellationToken) {
-      if (!(await _sessionRepository.FirstWhere("token", request.GetCookie("Token"), cancellationToken)).Out(out var sessionDatabaseModel)) {
-         return Option.Fail();
-      }
-      
-      if (!(await _userRepository.FirstWhere("id", sessionDatabaseModel.UserId, cancellationToken)).Out(out var usersDatabaseModel)) {
-         return Option.Fail();
-      }
 
-      if (sessionDatabaseModel.IsExpired() || usersDatabaseModel.IsRole(Role)) {
-         return Option.Fail();
-      }
-      
+   public async Task<Option> Invoke(Request request, Response response, CancellationToken cancellationToken) {
+      if (!(await _sessionRepository.FirstWhere("token", request.GetCookie("Token"), cancellationToken)).Out(
+             out var sessionDatabaseModel)) return Option.Fail();
+
+      if (!(await _userRepository.FirstWhere("id", sessionDatabaseModel.UserId, cancellationToken)).Out(
+             out var usersDatabaseModel)) return Option.Fail();
+
+      if (sessionDatabaseModel.IsExpired() || usersDatabaseModel.IsRole(Role)) return Option.Fail();
+
       request.FeatureCollection.Set<SessionDatabaseModel>(sessionDatabaseModel);
       request.FeatureCollection.Set<UsersDatabaseModel>(usersDatabaseModel);
       return Option.Ok();
