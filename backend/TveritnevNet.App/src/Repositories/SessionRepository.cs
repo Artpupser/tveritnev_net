@@ -12,6 +12,20 @@ namespace TveritnevNet.App.Repositories;
 public sealed class SessionRepository(IDatabaseConnectionFactory databaseConnectionFactory)
    : Repository<SessionDatabaseModel>(databaseConnectionFactory) {
 
+   public async Task<Option<int>> Delete(string column, string value, CancellationToken cancellationToken) {
+      try {
+         var connection = DatabaseConnectionFactory.GetConnection();
+         var commandDefinition = new CommandDefinition(
+            commandText: $"DELETE FROM {TableName} WHERE {column}=@Id",
+            parameters: new {Id=value}, 
+            cancellationToken: cancellationToken);
+         var scalarId = await connection.ExecuteScalarAsync<int>(commandDefinition);
+         return scalarId < 0 ? Option<int>.Fail() : Option<int>.Ok(scalarId);
+      } catch  {
+         return Option<int>.Fail();
+      }
+   }
+   
    public async Task<Option<int>> Create(int userId, string token, CancellationToken cancellationToken) {
       try {
          var connection = DatabaseConnectionFactory.GetConnection();

@@ -16,5 +16,5 @@ public record UsersDatabaseModel {
    [Column("username")] public string Username { get; init; }
    [Column("role")] public UserDatabaseRole Role { get; init; }
 
-   public bool IsRole(UserDatabaseRole role) => Role == role;
+   public bool IsRole(UserDatabaseRole role) => role <= Role;
 }

@@ -9,7 +9,7 @@ namespace TveritnevNet.App.Middleware;
 
 public sealed class ModifyLoggerMiddleware(ILogger<ModifyLoggerMiddleware> logger) : IMiddleware {
    public Task<Option> Invoke(Request request, Response response, CancellationToken cancellationToken) {
-      logger.LogInformation($"REQUEST:\n\tToken: {request.GetCookie("Token")}\n\tPath: {request.Path}\n\tIpV4: {request.IpAddress.ToString()}\n");
+      logger.LogInformation("REQUEST:\n\tToken: {GetCookie}\n\tPath: {RequestPath}\n\tIpV4: {ToString}\n", request.GetCookie("Token"), request.Path, request.IpAddress.ToString());
       return Option.OkTask();
    }
 }
