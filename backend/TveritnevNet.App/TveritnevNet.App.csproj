@@ -14,20 +14,21 @@
         <PackageReference Include="dotenv.net" Version="4.0.2" />
         <PackageReference Include="Npgsql" Version="10.0.2" />
         <PackageReference Include="PupaMVCF.Framework" Version="0.2.0" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="4.0.0" />
     </ItemGroup>
     <ItemGroup>
         <Content Include="appsettings.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <Content Include="**\*" Exclude="bin\**;obj\**"/>
+        <Content Include="**\*" Exclude="bin\**;obj\**" />
     </ItemGroup>
     <ItemGroup>
-        <FilesProject Include="$(ProjectDir)/environment/**/*"/>
+        <FilesProject Include="$(ProjectDir)/environment/**/*" />
     </ItemGroup>
     <Target Name="BuildEnv" AfterTargets="Build">
-        <Copy SourceFiles="@(FilesProject)" DestinationFolder="$(TargetDir)/%(RecursiveDir)"/>
+        <Copy SourceFiles="@(FilesProject)" DestinationFolder="$(TargetDir)/%(RecursiveDir)" />
     </Target>
     <Target Name="PublishEnv" AfterTargets="Publish">
-        <Copy SourceFiles="@(FilesProject)" DestinationFolder="$(PublishDir)/%(RecursiveDir)"/>
+        <Copy SourceFiles="@(FilesProject)" DestinationFolder="$(PublishDir)/%(RecursiveDir)" />
     </Target>
 </Project>

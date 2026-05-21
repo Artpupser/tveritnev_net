@@ -16,7 +16,7 @@ public sealed class SessionRepository(IDatabaseConnectionFactory databaseConnect
       try {
          var connection = DatabaseConnectionFactory.GetConnection();
          var commandDefinition = new CommandDefinition(
-            commandText: $"DELETE FROM {TableName} WHERE {column}=@Id",
+            commandText: $"DELETE FROM {TableName} WHERE {column}=@Id RETURNING id",
             parameters: new {Id=value}, 
             cancellationToken: cancellationToken);
          var scalarId = await connection.ExecuteScalarAsync<int>(commandDefinition);

@@ -30,7 +30,7 @@ public static class Program {
          new ModifyValidatorManager(builder.Configuration,
          [
             new NeedValidatorModule(), new EmailValidatorModule(), new NumberRangeValidatorModule(),
-            new StringRangeValidatorModule(), new CloudflareCaptchaValidatorModule(), new JsonValidatorModule() 
+            new StringRangeValidatorModule(), new CloudflareCaptchaValidatorModule(), new ImageValidatorModule(), new JsonValidatorModule() 
          ]));
       builder.Services.AddSingleton<IDatabaseConnectionFactory, DatabaseConnectionFactory<NpgsqlConnection>>();
       builder.Services.AddScoped<LoggerMiddleware>();
@@ -39,15 +39,17 @@ public static class Program {
       
       builder.Services.AddScoped<ErrorControllerOnlyJson>();
       builder.Services.AddScoped<StaticController>();
-      builder.Services.AddScoped<ModeratorController>();
+      builder.Services.AddScoped<UsersController>();
        builder.Services.AddScoped<ConfigsController>();
+       builder.Services.AddScoped<ImagesController>();
       
       builder.Services.AddSingleton<RouterMapBuilder>(_ => {
          var routerMapBuilder = new RouterMapBuilder();
          routerMapBuilder.AddController<StaticController>();
          routerMapBuilder.AddController<ErrorControllerOnlyJson>();
          routerMapBuilder.AddController<ConfigsController>();
-         routerMapBuilder.AddController<ModeratorController>();
+         routerMapBuilder.AddController<UsersController>();
+         routerMapBuilder.AddController<ImagesController>();
          return routerMapBuilder;
       });
       builder.Services.AddSingleton<IRouter, Router>();

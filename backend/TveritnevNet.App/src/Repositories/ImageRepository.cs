@@ -1,0 +1,55 @@
+using Dapper;
+
+using PupaLib.Core;
+
+using PupaMVCF.Framework.Core;
+using PupaMVCF.Framework.Database;
+
+using TveritnevNet.App.Models.Database;
+
+namespace TveritnevNet.App.Repositories;
+
+public sealed class ImageRepository(IDatabaseConnectionFactory databaseConnectionFactory) : Repository<ConfigsDatabaseModel>(databaseConnectionFactory) {
+   public async Task<Option> Create(byte[] image, string name, CancellationToken cancellationToken) {
+      try {
+         var publicFolder = WebApp.Context.PublicFolder;
+         var file = publicFolder.GetOrCreateFileIn(name);
+         await file.WriteBytesAsync(image, cancellationToken);
+         if (file.SizeInBytes != image.Length) 
+            return Option.Fail();
+         var connection = DatabaseConnectionFactory.GetConnection();
+         var commandDefinition =
+            new CommandDefinition(
+               commandText: $"INSERT INTO {TableName} (name) VALUES (@Name) RETURNING id",
+               parameters: new { Name = name },
+               cancellationToken: cancellationToken);
+         var scalarId = await connection.ExecuteScalarAsync<int>(commandDefinition);
+         return scalarId < 0 ? Option.Fail() : Option.Ok();
+      }
+      catch 
+      {
+         return Option.Fail();
+      }
+   }
+   
+   public async Task<Option> Delete(string name, CancellationToken cancellationToken) {
+      try {
+         var publicFolder = WebApp.Context.PublicFolder;
+         var file = publicFolder.GetOrCreateFileIn(name);
+         file.DeleteMe();
+         var connection = DatabaseConnectionFactory.GetConnection();
+         var commandDefinition =
+            new CommandDefinition(
+               commandText: $"DELETE FROM {TableName}WHERE name=@Name RETURNING id",
+               parameters: new { Name = name },
+               cancellationToken: cancellationToken);
+         var scalarId = await connection.ExecuteScalarAsync<int>(commandDefinition);
+         return scalarId < 0 ? Option.Fail() : Option.Ok();
+      }
+      catch 
+      {
+         return Option.Fail();
+      }
+   }
+   
+}

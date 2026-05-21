@@ -11,7 +11,7 @@ using TveritnevNet.App.Utils;
 
 namespace TveritnevNet.App.Controllers;
 
-public sealed class ModeratorController(IDatabaseConnectionFactory databaseConnectionFactory) : Controller {
+public sealed class UsersController(IDatabaseConnectionFactory databaseConnectionFactory) : Controller {
    private readonly UserRepository _userRepository = new(databaseConnectionFactory);
    private readonly SessionRepository _sessionRepository = new(databaseConnectionFactory);
 
