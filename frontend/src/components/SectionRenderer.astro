@@ -1,9 +1,9 @@
 ---
-import Hero from './sections/Hero';
-import About from './sections/About';
-import ServiceSwitcher from './sections/ServiceSwitcher';
-import Reviews from './sections/Reviews';
-import type { SectionData } from '../types/landing';
+import Hero from "./sections/Hero";
+import About from "./sections/About";
+import ServiceSwitcher from "./sections/ServiceSwitcher";
+import Reviews from "./sections/Reviews";
+import type { SectionData } from "../types/landing";
 
 interface Props {
   section: SectionData;
@@ -12,7 +12,11 @@ interface Props {
 const { section } = Astro.props;
 ---
 
-{section.type === 'hero' && <Hero {...section.props} />}
-{section.type === 'about' && <About {...section.props} />}
-{section.type === 'serviceSwitcher' && <ServiceSwitcher {...section.props} client:load />}
-{section.type === 'reviews' && <Reviews {...section.props} />}
+{section.type === "hero" && <Hero {...section.props} />}
+{section.type === "about" && <About {...section.props} />}
+{
+  section.type === "serviceSwitcher" && (
+    <ServiceSwitcher {...section.props} client:load />
+  )
+}
+{section.type === "reviews" && <Reviews {...section.props} />}

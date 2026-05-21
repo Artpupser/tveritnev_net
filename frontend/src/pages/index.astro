@@ -3,146 +3,167 @@ import MainLayout from "../layouts/MainLayout.astro";
 import SectionRenderer from "../components/SectionRenderer.astro";
 import type { SectionData } from "../types/landing";
 
-const sectionsFromBackend: SectionData[] = [
-  {
-    type: "hero",
-    props: {
-      title: "Какой то текст",
-      description: "Очень длинное описание которое только можно придумать.",
-      buttonText: "Текст на кнопке",
-      videoUrl: "/hero-bg.mp4",
-    },
+const pageDataFromBackend = {
+  config: {
+    title: "Лендинг Tveritnev",
+    showHeader: false,
+    showFooter: true,
   },
-  {
-    type: "about",
-    props: {
-      name: "Anatoly Tveritnev",
-      avatarUrl: "/about_photo.jpg",
-      skills: [
-        "Английский с нуля",
-        "Разговорный клуб",
-        "Для путешествий",
-        "Индивидуальный подход",
-      ],
-      badges: [
-        "Пешие прогулки по Рязани",
-        "Исторические гиды",
-        "Необычные маршруты",
-        "Индивидуальный трансфер",
-      ],
-      socials: [
-        { name: "VKontakte", url: "https://vk.com/tveritnev_rules" },
-        { name: "MAX", url: "https://vk.com/tveritnev_rules" },
-        { name: "Telegram", url: "https://t.me/Username" },
-      ],
-    },
-  },
-  {
-    type: "serviceSwitcher",
-    props: {
-      english: {
-        title: "Курсы Английского Языка",
-        description: "Индивидуальные занятия для любого уровня.",
-        phone: "+7 999 123 45 67",
-        vkUrl: "https://vk.com/tveritnev_rules",
-        maxUrl: "#",
-        tgUrl: "https://t.me/Username",
-        plans: [
-          {
-            name: "Начальный",
-            price: "1 500₽/ч",
-            features: [
-              "Основы грамматики",
-              "Постановка произношения",
-              "Домашние задания",
-            ],
-          },
-          {
-            name: "Профессионал",
-            price: "2 500₽/ч",
-            features: [
-              "Разговорный английский",
-              "Бизнес-лексика",
-              "Подготовка к собеседованиям",
-              "Поддержка 24/7",
-            ],
-          },
-        ],
+  sections: [
+    {
+      type: "hero",
+      props: {
+        title: "Какой то текст",
+        description: "Очень длинное описание которое только можно придумать.",
+        buttonText: "Смотреть",
+        videoUrl: "/hero-bg.mp4",
       },
-      guide: {
-        title: "Экскурсии по Рязани",
-        description:
-          "Уникальные авторские маршруты и полное погружение в историю города.",
-        phone: "+7 999 777 77 77",
-        vkUrl: "https://vk.com/tveritnev_rules",
-        maxUrl: "#",
-        tgUrl: "https://t.me/Username",
-        plans: [
-          {
-            name: "Уикенд",
-            price: "5 000₽",
-            features: [
-              "Пешая прогулка (3 часа)",
-              "Исторический центр",
-              "Чайная церемония",
-            ],
-          },
-          {
-            name: "Экспедиция",
-            price: "890 000₽",
-            features: [
-              "Трансфер на Майбахе",
-              "Индивидуальный маршрут",
-              "Обед в ресторане",
-              "Профессиональный фотограф",
-            ],
-          },
+    },
+    {
+      type: "about",
+      props: {
+        name: "Anatoly Tveritnev",
+        avatarUrl: "/about_photo.jpg",
+        skills: [
+          "Английский с нуля",
+          "Разговорный клуб",
+          "Для путешествий",
+          "Индивидуальный подход",
+        ],
+        badges: [
+          "Пешие прогулки по Рязани",
+          "Исторические гиды",
+          "Необычные маршруты",
+          "Индивидуальный трансфер",
+        ],
+        socials: [
+          { name: "VK", url: "https://vk.com/tveritnev_rules" },
+          { name: "MAX", url: "https://vk.com/tveritnev_rules" },
+          { name: "TG", url: "https://t.me/Username" },
         ],
       },
     },
-  },
-  {
-    type: "reviews",
-    props: {
-      title: "Отзывы",
-      row1: [
-        {
-          text: "Анатолий — лучший препод, заговорил за месяц!",
-          author: "Никита",
+    {
+      type: "serviceSwitcher",
+      props: {
+        english: {
+          title: "Курсы Английского Языка",
+          description: "Индивидуальные занятия для любого уровня.",
+          phone: "+7 999 123 45 67",
+          vkUrl: "https://vk.com/tveritnev_rules",
+          maxUrl: "#",
+          tgUrl: "https://t.me/Username",
+          plans: [
+            {
+              name: "Начальный",
+              price: "25 500₽/мес",
+              features: [
+                "Основы грамматики",
+                "Постановка произношения",
+                "Домашние задания",
+              ],
+            },
+            {
+              name: "Профессионал",
+              price: "45 500₽/мес",
+              features: [
+                "Разговорный английский",
+                "Бизнес-лексика",
+                "Подготовка к собеседованиям",
+                "Поддержка 24/7",
+              ],
+            },
+          ],
         },
-        {
-          text: "Уроки английского проходят на одном дыхании",
-          author: "Мария",
+        guide: {
+          title: "Экскурсии по Рязани",
+          description:
+            "Уникальные авторские маршруты и полное погружение в историю города.",
+          phone: "+7 999 777 77 77",
+          vkUrl: "https://vk.com/tveritnev_rules",
+          maxUrl: "#",
+          tgUrl: "https://t.me/Username",
+          plans: [
+            {
+              name: "Уикенд",
+              price: "5 000₽",
+              features: [
+                "Пешая прогулка (3 часа)",
+                "Исторический центр",
+                "Чайная церемония",
+              ],
+            },
+            {
+              name: "Экспедиция",
+              price: "890 000₽",
+              features: [
+                "Трансфер на Майбахе",
+                "Индивидуальный маршрут",
+                "Обед в ресторане",
+                "Профессиональный фотограф",
+              ],
+            },
+          ],
         },
-        { text: "Наконец-то я понял времена в английском", author: "Артем" },
-      ],
-      row2: [
-        { text: "Экскурсия по Рязани на Майбахе — это разрыв!", author: "Егор" },
-        {
-          text: "Очень крутые исторические факты, никакой скуки",
-          author: "Юлия",
-        },
-        {
-          text: "Рязань открылась совершенно с другой стороны",
-          author: "Алексей",
-        },
-      ],
-      row3: [
-        {
-          text: "Совмещаем инглиш и прогулки, это супер формат",
-          author: "Ксения",
-        },
-        { text: "Индивидуальный подход и классная атмосфера", author: "Денис" },
-        {
-          text: "Рекомендую всем, Анатолий мастер своего дела!",
-          author: "Ольга",
-        },
-      ],
+      },
     },
-  },
-];
+    {
+      type: "reviews",
+      props: {
+        title: "Отзывы",
+        row1: [
+          {
+            text: "Анатолий — лучший препод, заговорил за месяц!",
+            author: "Никита",
+          },
+          {
+            text: "Уроки английского проходят на одном дыхании",
+            author: "Мария",
+          },
+          { text: "Наконец-то я понял времена в английском", author: "Артем" },
+        ],
+        row2: [
+          {
+            text: "Экскурсия по Рязани на Майбахе — это разрыв!",
+            author: "Егор",
+          },
+          {
+            text: "Очень крутые исторические факты, никакой скуки",
+            author: "Юлия",
+          },
+          {
+            text: "Рязань открылась совершенно с другой стороны",
+            author: "Алексей",
+          },
+        ],
+        row3: [
+          {
+            text: "Совмещаем инглиш и прогулки, это супер формат",
+            author: "Ксения",
+          },
+          {
+            text: "Индивидуальный подход и классная атмосфера",
+            author: "Денис",
+          },
+          {
+            text: "Рекомендую всем, Анатолий мастер своего дела!",
+            author: "Ольга",
+          },
+        ],
+      },
+    },
+  ] as SectionData[],
+};
 ---
 
-<MainLayout title="Лендинг Tveritnev">
-  {sectionsFromBackend.map((section) => <SectionRenderer section={section} />)}
+<MainLayout
+  title={pageDataFromBackend.config.title}
+  showHeader={pageDataFromBackend.config.showHeader}
+  showFooter={pageDataFromBackend.config.showFooter}
+>
+  {
+    pageDataFromBackend.sections.map((section) => (
+      <SectionRenderer section={section} />
+    ))
+  }
 </MainLayout>

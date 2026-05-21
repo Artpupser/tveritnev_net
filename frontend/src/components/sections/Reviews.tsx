@@ -5,7 +5,7 @@ const Reviews: React.FC<ReviewsProps> = ({ title, row1, row2, row3 }) => {
   const doubleRow = (arr: any[]) => [...arr, ...arr, ...arr];
 
   return (
-    <section className="py-20 overflow-hidden">
+    <section id="reviews" className="py-20 overflow-hidden">
       <style>{`
         @keyframes scrollLeft {
           0% {
@@ -40,7 +40,7 @@ const Reviews: React.FC<ReviewsProps> = ({ title, row1, row2, row3 }) => {
       `}</style>
 
       <div className="container mx-auto max-w-6xl mb-12">
-        <h2 className="text-3xl font-black uppercase tracking-tight text-slate-950">
+        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-slate-950">
           {title}
         </h2>
       </div>
@@ -51,7 +51,7 @@ const Reviews: React.FC<ReviewsProps> = ({ title, row1, row2, row3 }) => {
             {doubleRow(row1).map((item, idx) => (
               <div
                 key={idx}
-                className="inline-flex items-center gap-3 py-4 px-8 border-2 border-dashed border-blue-200 hover:border-slate-950 rounded-full bg-white transition-all cursor-pointer whitespace-nowrap text-sm"
+                className="inline-flex items-center gap-3 py-4 px-8 border border-slate-200 hover:border-slate-950 rounded-full bg-white transition-colors duration-250 cursor-pointer whitespace-nowrap text-sm shadow-sm hover:bg-slate-50/50"
               >
                 <span className="text-slate-700 leading-relaxed font-medium">
                   “{item.text}”
@@ -70,7 +70,7 @@ const Reviews: React.FC<ReviewsProps> = ({ title, row1, row2, row3 }) => {
             {doubleRow(row2).map((item, idx) => (
               <div
                 key={idx}
-                className="inline-flex items-center gap-3 py-4 px-8 border-2 border-dashed border-blue-200 hover:border-slate-950 rounded-full bg-slate-50 hover:bg-white transition-all cursor-pointer whitespace-nowrap text-sm"
+                className="inline-flex items-center gap-3 py-4 px-8 border border-slate-200 hover:border-slate-950 rounded-full bg-slate-50 hover:bg-white transition-colors duration-250 cursor-pointer whitespace-nowrap text-sm shadow-sm"
               >
                 <span className="text-slate-700 leading-relaxed font-medium">
                   “{item.text}”
@@ -89,7 +89,7 @@ const Reviews: React.FC<ReviewsProps> = ({ title, row1, row2, row3 }) => {
             {doubleRow(row3).map((item, idx) => (
               <div
                 key={idx}
-                className="inline-flex items-center gap-3 py-4 px-8 border-2 border-dashed border-blue-200 hover:border-slate-950 rounded-full bg-white transition-all cursor-pointer whitespace-nowrap text-sm"
+                className="inline-flex items-center gap-3 py-4 px-8 border border-slate-200 hover:border-slate-950 rounded-full bg-white transition-colors duration-250 cursor-pointer whitespace-nowrap text-sm shadow-sm hover:bg-slate-50/50"
               >
                 <span className="text-slate-700 leading-relaxed font-medium">
                   “{item.text}”

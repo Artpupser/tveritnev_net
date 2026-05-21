@@ -11,7 +11,7 @@ const Hero: React.FC<HeroProps> = ({
 
   return (
     <section
-      className={`relative pt-44 pb-32 px-8 overflow-hidden min-h-[85vh] flex items-center ${
+      className={`relative pt-44 pb-32 px-8 overflow-hidden min-h-[85vh] flex items-end ${
         isVideo ? "text-white" : "text-slate-900 border-b border-gray-100"
       }`}
     >
@@ -34,27 +34,39 @@ const Hero: React.FC<HeroProps> = ({
         </>
       )}
 
-      <div className="container mx-auto max-w-6xl relative z-20">
-        <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight tracking-tighter max-w-3xl">
+      <div className="w-full max-w-full px-12 relative z-20">
+        <h1 className="text-3xl md:text-5xl font-black mb-4 leading-tight tracking-normal max-w-2xl">
           {title}
         </h1>
         <p
-          className={`text-lg md:text-xl mb-10 leading-relaxed max-w-2xl ${
-            isVideo ? "text-gray-200" : "text-gray-500"
+          className={`text-base md:text-lg mb-8 leading-relaxed max-w-xl ${
+            isVideo ? "text-slate-200" : "text-slate-500"
           }`}
         >
           {description}
         </p>
-
         {buttonText && (
           <button
-            className={`px-8 py-4 rounded-xl font-bold uppercase text-xs tracking-wider border-2 border-dashed  transition-all duration-200 active:scale-95 ${
+            className={`group px-7 py-3.5 rounded-xl font-bold uppercase text-[11px] tracking-widest transition-all duration-150 ease-out flex items-center gap-2.5 w-fit hover:-translate-y-px active:translate-y-px ${
               isVideo
-                ? "border-blue-200 text-white bg-white/5 hover:text-black hover:border-black hover:shadow-lg"
-                : "border-black/30 text-black bg-black/5 hover:text-white hover:border-black"
+                ? "bg-white text-slate-950 hover:bg-slate-50 active:bg-slate-200"
+                : "bg-slate-950 text-white hover:bg-slate-900 active:bg-slate-800"
             }`}
           >
-            {buttonText}
+            <span>{buttonText}</span>
+
+            <svg
+              className="w-3.5 h-3.5 transition-transform duration-150 ease-out group-hover:translate-x-1 shrink-0 stroke-current"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2.5}
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+              />
+            </svg>
           </button>
         )}
       </div>
