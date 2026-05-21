@@ -9,24 +9,24 @@ using TveritnevNet.App.Repositories;
 
 namespace TveritnevNet.App.Middleware;
 
-public sealed class ModeratorSessionMiddleware(IDatabaseConnectionFactory databaseConnectionFactory) : IMiddleware {
-   private readonly SessionRepository _sessionRepository = new SessionRepository(databaseConnectionFactory);
-   private readonly ModeratorRepository _moderatorRepository = new ModeratorRepository(databaseConnectionFactory);
+public sealed class AdminSessionMiddleware(IDatabaseConnectionFactory databaseConnectionFactory) : IMiddleware {
+   private readonly SessionRepository _sessionRepository = new(databaseConnectionFactory);
+   private readonly UserRepository _userRepository = new(databaseConnectionFactory);
    public async Task<Option> Invoke(Request request, Response response, CancellationToken cancellationToken) {
       if (!(await _sessionRepository.FirstWhere("token", request.GetCookie("Token"), cancellationToken)).Out(out var sessionDatabaseModel)) {
          return Option.Fail();
       }
       
-      if (!(await _moderatorRepository.FirstWhere("id", sessionDatabaseModel.UserId, cancellationToken)).Out(out var moderatorDatabaseModel)) {
+      if (!(await _userRepository.FirstWhere("id", sessionDatabaseModel.UserId, cancellationToken)).Out(out var usersDatabaseModel)) {
          return Option.Fail();
       }
 
-      if (sessionDatabaseModel.IsExpired()) {
+      if (sessionDatabaseModel.IsExpired() || usersDatabaseModel.IsRole(UserDatabaseRole.Admin)) {
          return Option.Fail();
       }
       
       request.FeatureCollection.Set<SessionDatabaseModel>(sessionDatabaseModel);
-      request.FeatureCollection.Set<ModeratorDatabaseModel>(moderatorDatabaseModel);
+      request.FeatureCollection.Set<UsersDatabaseModel>(usersDatabaseModel);
       return Option.Ok();
    }
 }

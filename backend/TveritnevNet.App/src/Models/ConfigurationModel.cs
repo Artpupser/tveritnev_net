@@ -6,11 +6,11 @@ namespace TveritnevNet.App.Models;
 
 public record ConfigurationModel {
    [ValidRule("need~")]
-   [ValidRule("json~")]
-   [JsonPropertyName("panel")]
-   public string PanelJson { get; set; }
+   [ValidRule("string_range~1 32")]
+   [JsonPropertyName("name")]
+   public string Name { get; set; }
    [ValidRule("need~")]
    [ValidRule("json~")]
-   [JsonPropertyName("settings")]
-   public string SettingsJson { get; set; }
+   [JsonPropertyName("json")]
+   public string Json { get; set; }
 }

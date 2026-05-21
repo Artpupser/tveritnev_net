@@ -1,4 +1,3 @@
-using System.Text.Json;
 
 using PupaMVCF.Framework.Controllers;
 using PupaMVCF.Framework.Core;
@@ -6,23 +5,22 @@ using PupaMVCF.Framework.Database;
 
 using TveritnevNet.App.Middleware;
 using TveritnevNet.App.Models;
-using TveritnevNet.App.Models.Database;
 using TveritnevNet.App.Repositories;
 using TveritnevNet.App.Utils;
 
 namespace TveritnevNet.App.Controllers;
 
 public sealed class ModeratorController(IDatabaseConnectionFactory databaseConnectionFactory) : Controller {
-   private readonly ModeratorRepository _moderatorRepository = new(databaseConnectionFactory);
+   private readonly UserRepository _userRepository = new(databaseConnectionFactory);
    private readonly SessionRepository _sessionRepository = new(databaseConnectionFactory);
    
-   [ControllerHandler("/moderator/login", HttpMethodType.POST, typeof(ModifyLoggerMiddleware))]
-   private async Task ModeratorLoginHandler(Request request, Response response, CancellationToken cancellationToken) {
+   [ControllerHandler("/users/login", HttpMethodType.POST, typeof(ModifyLoggerMiddleware))]
+   private async Task UsersLoginHandler(Request request, Response response, CancellationToken cancellationToken) {
       if (!(await WebApp.Context.Validator.ValidFromRequest<LoginModel>(request, response, cancellationToken)).Out(out var loginModel)) {
          return;
       }
 
-      if (!(await _moderatorRepository.FirstWhere("username", loginModel.Username, cancellationToken)).Out(out var moderatorDatabaseModel) || moderatorDatabaseModel.PasswordHash != CryptoUtils.Sha256(loginModel.Password)) {
+      if (!(await _userRepository.FirstWhere("username", loginModel.Username, cancellationToken)).Out(out var moderatorDatabaseModel) || moderatorDatabaseModel.Password != CryptoUtils.Sha256(loginModel.Password)) {
          response.PushError($"Username or password wrong.");
          return;
       }

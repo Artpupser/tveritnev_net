@@ -9,15 +9,15 @@ using TveritnevNet.App.Repositories;
 namespace TveritnevNet.App.Controllers;
 
 public sealed class ConfigurationController(IDatabaseConnectionFactory databaseConnectionFactory) : Controller {
-   private readonly ModeratorRepository _moderatorRepository = new(databaseConnectionFactory);
+   private readonly UserRepository _userRepository = new(databaseConnectionFactory);
    private readonly SessionRepository _sessionRepository = new(databaseConnectionFactory);
-   private readonly ConfigurationRepository _configurationRepository = new(databaseConnectionFactory);
+   private readonly ConfigsRepository _configsRepository = new(databaseConnectionFactory);
 
    #region GET
 
    [ControllerHandler("/configuration/panel", HttpMethodType.GET, typeof(ModifyLoggerMiddleware))]
    private async Task GetConfigurationPanelHandler(Request request, Response response, CancellationToken cancellationToken) {
-      var contentOption = await _configurationRepository.FirstPanel(cancellationToken);
+      var contentOption = await _configsRepository.FirstPanel(cancellationToken);
       if (contentOption.Out(out var content)) {
          response.MimeContentType = MimeContentType.Json;
          response.WriteStrToCache(content);
@@ -26,9 +26,9 @@ public sealed class ConfigurationController(IDatabaseConnectionFactory databaseC
    }
    
    [ControllerHandler("/configuration/settings", HttpMethodType.GET, typeof(ModifyLoggerMiddleware),
-      typeof(ModeratorSessionMiddleware))]
+      typeof(AdminSessionMiddleware))]
    private async Task GetConfigurationSettingsHandler(Request request, Response response, CancellationToken cancellationToken) {
-      var contentOption = await _configurationRepository.FirstSettings(cancellationToken);
+      var contentOption = await _configsRepository.FirstSettings(cancellationToken);
       if (contentOption.Out(out var content)) {
          response.MimeContentType = MimeContentType.Json;
          response.WriteStrToCache(content);
@@ -40,13 +40,13 @@ public sealed class ConfigurationController(IDatabaseConnectionFactory databaseC
 
    #region POST
    
-   [ControllerHandler("/configuration/save", HttpMethodType.POST, typeof(ModifyLoggerMiddleware), typeof(ModeratorSessionMiddleware))]
+   [ControllerHandler("/configuration/save", HttpMethodType.POST, typeof(ModifyLoggerMiddleware), typeof(AdminSessionMiddleware))]
    private async Task PostConfigurationPanelHandler(Request request, Response response, CancellationToken cancellationToken) {
       if (!(await WebApp.Context.Validator.ValidFromRequest<ConfigurationModel>(request, response, cancellationToken)).Out(out var configurationModel)) {
          return;
       }
 
-      if (await _configurationRepository.Refresh(configurationModel, 1, cancellationToken)) {
+      if (await _configsRepository.Refresh(configurationModel, 1, cancellationToken)) {
          response.WriteStrToCache("success");
          return;
       }

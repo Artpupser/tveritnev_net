@@ -4,29 +4,31 @@ CREATE DATABASE myapp;
 
 ALTER DATABASE myapp SET timezone TO 'Europe/Moscow';
 
+CREATE TYPE user_role AS ENUM ('member', 'admin')
 
-CREATE TABLE moderator (
+
+CREATE TABLE users {
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    username TEXT NOT NULL,
-    password_hash TEXT NOT NULL
-);
+    username varchar(128) NOT NULL,
+    password varchar(256) NOT NULL,
+    role user_role NOT NULL DEFAULT 'member',
+}
 
 
 CREATE TABLE session (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id INT NOT NULL REFERENCES moderator(id) ON DELETE CASCADE,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     expired_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE configuration (
+CREATE TABLE configs {
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    panel_json TEXT NOT NULL,
-    settings_json TEXT NOT NULL
-);
-
+    name varchar(32) NOT NULL,
+    json TEXT NOT NULL,
+}
 
 -- TRIGGERS: automatic clear sessions
 

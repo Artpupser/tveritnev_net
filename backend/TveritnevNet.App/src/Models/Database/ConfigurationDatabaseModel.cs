@@ -2,8 +2,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TveritnevNet.App.Models.Database;
 
-[Table("configuration")]
+[Table("configs")]
 public record ConfigurationDatabaseModel {
-   [Column("panel_json")] public string PanelJson { get; init; } 
-   [Column("settings_json")] public string SettingsJson { get; init; } 
+   [Column("id")] public int Id { get; init; }
+   [Column("name")] public string Name { get; set; }
+   [Column("json")] public string Json { get; init; } 
 }

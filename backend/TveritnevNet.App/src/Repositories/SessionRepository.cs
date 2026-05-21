@@ -15,10 +15,12 @@ public sealed class SessionRepository(IDatabaseConnectionFactory databaseConnect
    public async Task<Option<int>> Create(int userId, string token, CancellationToken cancellationToken) {
       try {
          var connection = DatabaseConnectionFactory.GetConnection();
-         var commandDefinition = new CommandDefinition($"INSERT INTO {TableName} (user_id, token, expired_at) VALUES (@UserId, @Token, @ExpiredAt) RETURNING id",
-            new {UserId=userId, Token=token, ExpiredAt=DateTimeOffset.UtcNow.AddDays(10)}, cancellationToken: cancellationToken);
+         var commandDefinition = new CommandDefinition(
+            commandText: $"INSERT INTO {TableName} (user_id, token, expired_at) VALUES (@UserId, @Token, @ExpiredAt) RETURNING id",
+            parameters: new {UserId=userId, Token=token, ExpiredAt=DateTimeOffset.UtcNow.AddDays(10)}, 
+            cancellationToken: cancellationToken);
          var id = await connection.ExecuteScalarAsync<int>(commandDefinition);
-         return id is < 0 ? Option<int>.Fail() : Option<int>.Ok(id);
+         return id < 0 ? Option<int>.Fail() : Option<int>.Ok(id);
 
       } catch {
          return Option<int>.Fail();
@@ -36,7 +38,7 @@ public sealed class SessionRepository(IDatabaseConnectionFactory databaseConnect
             parameters: new { Token = token, Id = sessionDatabaseModel.Id },
             cancellationToken: cancellationToken);
          var id = await connection.ExecuteScalarAsync<int>(commandDefinition);
-         return id is < 0 ? Option<int>.Fail() : Option<int>.Ok(id);
+         return id < 0 ? Option<int>.Fail() : Option<int>.Ok(id);
       } catch  {
          return Option<int>.Fail();
       }
