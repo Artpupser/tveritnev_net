@@ -10,7 +10,7 @@ using TveritnevNet.App.Models.Database;
 namespace TveritnevNet.App.Repositories;
 
 public sealed class ConfigsRepository(IDatabaseConnectionFactory databaseConnectionFactory)
-   : Repository<ConfigurationDatabaseModel>(databaseConnectionFactory) {
+   : Repository<ConfigsDatabaseModel>(databaseConnectionFactory) {
    
    public async Task<Option> Create(string name, string json, CancellationToken cancellationToken) {
       try

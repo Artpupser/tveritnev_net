@@ -50,6 +50,12 @@ public sealed class DatabaseInitializeService {
          if (string.IsNullOrWhiteSpace(json)) {
             throw new Exception($"Default configs is empty, {fullFileName}");
          }
+
+         var defaultFileName = $"default_{file}";
+         
+         if (!await configsRepo.ExistsAsync("name", defaultFileName, cancellationToken)) {
+            await configsRepo.Create(defaultFileName, json, cancellationToken);
+         }
          
          if (!await configsRepo.ExistsAsync("name", fileName, cancellationToken)) {
             await configsRepo.Create(fileName, json, cancellationToken);

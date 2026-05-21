@@ -21,9 +21,6 @@ using TveritnevNet.App.Validators;
 namespace TveritnevNet.App;
 
 public static class Program {
-
-
-   
    private static async Task Main(string[] args) {
       dotenv.net.DotEnv.Load();
       Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
