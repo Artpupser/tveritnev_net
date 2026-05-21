@@ -4,15 +4,15 @@ CREATE DATABASE myapp;
 
 ALTER DATABASE myapp SET timezone TO 'Europe/Moscow';
 
-CREATE TYPE user_role AS ENUM ('member', 'admin')
+CREATE TYPE user_role AS ENUM ('member', 'admin');
 
 
-CREATE TABLE users {
+CREATE TABLE users (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username varchar(128) NOT NULL,
     password varchar(256) NOT NULL,
-    role user_role NOT NULL DEFAULT 'member',
-}
+    role user_role NOT NULL DEFAULT 'member'
+);
 
 
 CREATE TABLE session (
@@ -24,11 +24,11 @@ CREATE TABLE session (
     expired_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE configs {
+CREATE TABLE configs (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name varchar(32) NOT NULL,
-    json TEXT NOT NULL,
-}
+    json TEXT NOT NULL
+);
 
 -- TRIGGERS: automatic clear sessions
 

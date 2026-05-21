@@ -7,22 +7,22 @@
     "detailLevel": "All",
     "tablePositions": [
       {
-        "name": "moderator",
-        "schemaName": "public",
-        "x": 12,
-        "y": 226
-      },
-      {
         "name": "session",
         "schemaName": "public",
         "x": 481.05517578125,
         "y": 226
       },
       {
-        "name": "configuration",
+        "name": "users",
         "schemaName": "public",
-        "x": 256,
-        "y": 52
+        "x": 12,
+        "y": 226
+      },
+      {
+        "name": "configs",
+        "schemaName": "public",
+        "x": 218,
+        "y": 22
       }
     ],
     "tableGroupCollapseStates": [],
