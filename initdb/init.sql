@@ -30,7 +30,12 @@ CREATE TABLE configs (
     json TEXT NOT NULL
 );
 
--- TRIGGERS: automatic clear sessions
+CREATE TABLE images (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name varchar(32) NOT NULL
+);
+
+-- automatic clear sessions
 
 CREATE OR REPLACE FUNCTION delete_expired_sessions()
 RETURNS TRIGGER AS $$

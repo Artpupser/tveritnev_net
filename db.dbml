@@ -25,5 +25,10 @@ table configs {
   json text [not null]
 }
 
+table images {
+  id integer [pk, increment]
+  name text [not null]
+}
+
 
 ref: session.user_id > users.id [delete: cascade]
