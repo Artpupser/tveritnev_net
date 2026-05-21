@@ -40,13 +40,13 @@ public static class Program {
       builder.Services.AddScoped<ErrorControllerOnlyJson>();
       builder.Services.AddScoped<StaticController>();
       builder.Services.AddScoped<ModeratorController>();
-       builder.Services.AddScoped<ConfigurationController>();
+       builder.Services.AddScoped<ConfigsController>();
       
       builder.Services.AddSingleton<RouterMapBuilder>(_ => {
          var routerMapBuilder = new RouterMapBuilder();
          routerMapBuilder.AddController<StaticController>();
          routerMapBuilder.AddController<ErrorControllerOnlyJson>();
-         routerMapBuilder.AddController<ConfigurationController>();
+         routerMapBuilder.AddController<ConfigsController>();
          routerMapBuilder.AddController<ModeratorController>();
          return routerMapBuilder;
       });

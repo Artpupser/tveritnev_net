@@ -11,14 +11,14 @@ using TveritnevNet.App.Repositories;
 namespace TveritnevNet.App.Controllers;
 
 
-public sealed class ConfigurationController : Controller {
+public sealed class ConfigsController : Controller {
    private readonly UserRepository _userRepository;
    private readonly SessionRepository _sessionRepository;
    private readonly ConfigsRepository _configsRepository;
    private readonly string[] _wrongWords = ["admin", "moderator", "default"];
    private readonly string _pattern;
 
-   public ConfigurationController(IDatabaseConnectionFactory databaseConnectionFactory) {
+   public ConfigsController(IDatabaseConnectionFactory databaseConnectionFactory) {
       _userRepository = new UserRepository(databaseConnectionFactory);
       _sessionRepository = new SessionRepository(databaseConnectionFactory);
       _configsRepository = new ConfigsRepository(databaseConnectionFactory);
