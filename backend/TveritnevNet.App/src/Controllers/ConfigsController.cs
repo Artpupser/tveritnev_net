@@ -26,7 +26,7 @@ public sealed class ConfigsController : Controller {
 
    #region GET
 
-   [ControllerHandler("/configs/load", HttpMethodType.GET, typeof(ModifyLoggerMiddleware))]
+   [ControllerHandler("/configs/load", HttpMethodType.GET, typeof(ModifyLoggerMiddleware), typeof(AdminSessionMiddleware))]
    private async Task GetConfigsLoadHandler(Request request, Response response, CancellationToken cancellationToken) {
       if (!(await WebApp.Context.Validator.ValidFromRequest<ConfigLoadModel>(request, response, cancellationToken)).Out(
              out var configLoadModel)) return;
@@ -38,10 +38,19 @@ public sealed class ConfigsController : Controller {
 
       if (!(await _configsRepository.FirstWhere("name", configLoadModel.Name, cancellationToken)).Out(
              out var configsDatabaseModel)) {
-         response.PushError("Error load config from storage");
+         response.PushError("Error load config from storage.");
          return;
       }
 
+      response.WriteTJsonToCache(configsDatabaseModel);
+   }
+
+   [ControllerHandler("/configs/site", HttpMethodType.GET, typeof(ModifyLoggerMiddleware))]
+   private async Task GetConfigsSiteHandler(Request request, Response response, CancellationToken cancellationToken) {
+      if (!(await _configsRepository.FirstWhere("name", "site", cancellationToken)).Out(out var configsDatabaseModel)) {
+         response.PushError("Error load config from storage.");
+         return;
+      }
       response.WriteTJsonToCache(configsDatabaseModel);
    }
 
