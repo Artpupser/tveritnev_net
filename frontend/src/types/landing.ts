@@ -51,8 +51,19 @@ export interface ReviewsProps {
   row3: ReviewItem[];
 }
 
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface FAQProps {
+  title: string;
+  items: FAQItem[];
+}
+
 export type SectionData = 
   | { type: 'hero'; props: HeroProps }
   | { type: 'about'; props: AboutProps }
   | { type: 'serviceSwitcher'; props: ServiceSwitcherProps }
-  | { type: 'reviews'; props: ReviewsProps };
+  | { type: 'reviews'; props: ReviewsProps }
+  | { type: 'faq'; props: FAQProps };

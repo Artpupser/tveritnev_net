@@ -1,11 +1,11 @@
 import React from "react";
-import type { ReviewsProps } from "../../types/landing";
+import type { ReviewsProps } from "@appTypes/landing";
 
 const Reviews: React.FC<ReviewsProps> = ({ title, row1, row2, row3 }) => {
   const doubleRow = (arr: any[]) => [...arr, ...arr, ...arr];
 
   return (
-    <section id="reviews" className="py-20 overflow-hidden">
+    <section id="reviews" className="py-20 select-none overflow-hidden">
       <style>{`
         @keyframes scrollLeft {
           0% {

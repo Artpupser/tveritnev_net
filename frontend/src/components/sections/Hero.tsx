@@ -1,5 +1,5 @@
 import React from "react";
-import type { HeroProps } from "../../types/landing";
+import type { HeroProps } from "@appTypes/landing";
 
 const Hero: React.FC<HeroProps> = ({
   title,
@@ -11,7 +11,7 @@ const Hero: React.FC<HeroProps> = ({
 
   return (
     <section
-      className={`relative pt-44 pb-32 px-8 overflow-hidden min-h-[85vh] flex items-end ${
+      className={`relative pt-44 pb-32 px-8 overflow-hidden min-h-[85vh] flex items-end select-none ${
         isVideo ? "text-white" : "text-slate-900 border-b border-gray-100"
       }`}
     >
@@ -30,7 +30,7 @@ const Hero: React.FC<HeroProps> = ({
 
           <div className="absolute inset-0 bg-black/50 z-10" />
 
-          <div className="absolute bottom-0 left-0 right-0 h-50 bg-linear-to-t from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-50 bg-linear-to-t from-slate-100 to-transparent z-10 pointer-events-none" />
         </>
       )}
 

@@ -1,5 +1,5 @@
 import React from "react";
-import type { AboutProps } from "../../types/landing";
+import type { AboutProps } from "@appTypes/landing";
 
 const getSocialIcon = (name: string) => {
   const normalizedName = name.toUpperCase();
@@ -159,7 +159,7 @@ const About: React.FC<AboutProps> = ({
             {name}
           </h2>
 
-          <div className="border border-slate-200 p-6 rounded-3xl flex flex-col gap-6 bg-slate-50/30">
+          <div className="border border-slate-200 p-6 rounded-3xl flex flex-col gap-6 bg-white">
             <div>
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-3">
                 Преподавание английского:

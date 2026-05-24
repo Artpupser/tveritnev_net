@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { ServiceSwitcherProps } from "../../types/landing";
+import type { ServiceSwitcherProps } from "@appTypes/landing";
 
 const getSocialIcon = (name: string) => {
   const normalizedName = name.toUpperCase();
@@ -137,7 +137,7 @@ const ServiceSwitcher: React.FC<ServiceSwitcherProps> = ({
   const currentData = activeTab === "english" ? english : guide;
 
   return (
-    <section id="services" className="py-20">
+    <section id="services" className="py-20 select-none">
       <div className="container mx-auto max-w-6xl">
         <div className="border border-slate-200 rounded-3xl p-8 bg-white relative">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-200 pb-6 mb-8">
