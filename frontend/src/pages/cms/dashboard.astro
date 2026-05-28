@@ -1,0 +1,12 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import DashboardComponent from "../../components/cms/Dashboard";
+---
+
+<MainLayout
+  title="CMS | Панель управления"
+  showHeader={false}
+  showFooter={false}
+>
+  <DashboardComponent client:load />
+</MainLayout>
