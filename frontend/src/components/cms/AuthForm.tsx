@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axios from "axios";
+import apiClient from "@/lib/apiClient";
 
 const AuthForm: React.FC = () => {
   const [login, setLogin] = useState("");
@@ -6,19 +8,28 @@ const AuthForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
-    setTimeout(() => {
-      if (login === "admin" && password === "ryazan2026") {
-        window.location.href = "/cms/dashboard";
+    try {
+      await apiClient.post("/users/login", {
+        username: login,
+        password: password,
+      });
+
+      window.location.href = "/cms/dashboard";
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverMessage = err.response?.data?.message;
+        setError(serverMessage || "Неверный логин или пароль");
       } else {
-        setError("Неверный логин или пароль");
-        setIsLoading(false);
+        setError("Ошибка! Попробуйте позже...");
       }
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

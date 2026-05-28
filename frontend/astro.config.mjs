@@ -9,6 +9,16 @@ export default defineConfig({
   integrations: [react()],
 
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:50501',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        }
+      }
+    }
   }
 });
