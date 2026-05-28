@@ -1,0 +1,10 @@
+---
+import MainLayout from "@layouts/MainLayout.astro";
+import AuthForm from "@components/cms/AuthForm";
+---
+
+<MainLayout title="CMS | Вход в панель" showHeader={false} showFooter={false}>
+  <div class="min-h-screen w-full flex items-center justify-center bg-slate-50/50 px-6 select-none">
+    <AuthForm client:load />
+  </div>
+</MainLayout>
