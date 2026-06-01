@@ -14,6 +14,10 @@ const AuthForm: React.FC = () => {
     setIsLoading(true);
 
     try {
+      const generatedToken = crypto.randomUUID();
+
+      document.cookie = `Token=${generatedToken}; path=/; max-age=864000; SameSite=Lax`;
+
       await apiClient.post("/users/login", {
         username: login,
         password: password,
@@ -21,9 +25,15 @@ const AuthForm: React.FC = () => {
 
       window.location.href = "/cms/dashboard";
     } catch (err) {
+      document.cookie = "Token=; path=/; max-age=0";
+
       if (axios.isAxiosError(err)) {
-        const serverMessage = err.response?.data?.message;
-        setError(serverMessage || "Неверный логин или пароль");
+        const serverMessage = err.response?.data;
+        setError(
+          typeof serverMessage === "string"
+            ? serverMessage
+            : "Неверный логин или пароль",
+        );
       } else {
         setError("Ошибка! Попробуйте позже...");
       }

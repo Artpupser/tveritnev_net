@@ -1,4 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import {
+  Reorder,
+  useDragControls,
+  AnimatePresence,
+  motion,
+} from "framer-motion";
+import {
+  Layout,
+  UserCircle,
+  ArrowLeftRight,
+  MessageSquareQuote,
+  HelpCircle,
+  Plus,
+  X,
+  Copy,
+  Check,
+  Download,
+} from "lucide-react";
 
 interface CMSSection {
   id: string;
@@ -6,6 +24,14 @@ interface CMSSection {
   isActive: boolean;
   props: any;
 }
+
+const sectionTypes = [
+  { id: "hero", label: "Hero", icon: Layout },
+  { id: "about", label: "About", icon: UserCircle },
+  { id: "serviceSwitcher", label: "Services", icon: ArrowLeftRight },
+  { id: "reviews", label: "Reviews", icon: MessageSquareQuote },
+  { id: "faq", label: "FAQ", icon: HelpCircle },
+];
 
 const Dashboard: React.FC = () => {
   const [sections, setSections] = useState<CMSSection[]>([
@@ -27,12 +53,9 @@ const Dashboard: React.FC = () => {
       props: {
         name: "Anatoly Tveritnev",
         avatarUrl: "/about_photo.jpg",
-        skills: ["Английский с нуля", "Разговорный клуб", "Для путешествий"],
-        badges: ["Пешие прогулки по Рязани", "Исторические гиды"],
-        socials: [
-          { name: "VKontakte", url: "https://vk.com/tveritnev_rules" },
-          { name: "Telegram", url: "https://t.me/Username" },
-        ],
+        skills: ["Английский с нуля", "Разговорный клуб"],
+        badges: ["Пешие прогулки по Рязани"],
+        socials: [{ name: "VKontakte", url: "https://vk.com/tveritnev_rules" }],
       },
     },
     {
@@ -41,16 +64,16 @@ const Dashboard: React.FC = () => {
       isActive: true,
       props: {
         english: {
-          title: "Курсы Английского Языка",
-          description: "Индивидуальные занятия для любого уровня.",
-          phone: "+7 999 123 45 67",
-          plans: [{ name: "Начальный", price: "1 500₽/ч" }],
+          title: "Курсы Английского",
+          description: "Текст",
+          phone: "+7 999",
+          plans: [],
         },
         guide: {
-          title: "Экскурсии по Рязани",
-          description: "Авторские маршруты по городу.",
-          phone: "+7 999 777 77 77",
-          plans: [{ name: "Уикенд", price: "5 000₽" }],
+          title: "Экскурсии",
+          description: "Текст",
+          phone: "+7 888",
+          plans: [],
         },
       },
     },
@@ -58,71 +81,89 @@ const Dashboard: React.FC = () => {
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showAddMenu, setShowAddMenu] = useState(false);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
+  const [jsonInput, setJsonInput] = useState("");
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [jsonError, setJsonError] = useState<string | null>(null);
+
+  const downloadJson = () => {
+    const blob = new Blob([jsonInput], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const local = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+    link.download = `config_backup_${local}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
+  useEffect(() => {
+    setJsonInput(JSON.stringify(sections, null, 2));
+  }, [sections]);
+
+  const handleJsonChange = (val: string) => {
+    setJsonInput(val);
+    try {
+      const parsed = JSON.parse(val);
+      setSections(parsed);
+      setJsonError(null);
+    } catch (e: any) {
+      setJsonError(e.message);
+    }
   };
 
-  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === targetIndex) return;
-
-    const updated = [...sections];
-    const [movedItem] = updated.splice(draggedIndex, 1);
-    updated.splice(targetIndex, 0, movedItem);
-
-    setSections(updated);
-    setDraggedIndex(null);
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(jsonInput);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
   };
 
-  const toggleSection = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setSections(
-      sections.map((sec) =>
-        sec.id === id ? { ...sec, isActive: !sec.isActive } : sec,
-      ),
+  const toggleSection = (id: string) => {
+    setSections((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, isActive: !s.isActive } : s)),
     );
   };
 
-  const deleteSection = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (confirm("Вы уверены, что хотите удалить эту секцию?")) {
-      setSections(sections.filter((sec) => sec.id !== id));
+  const deleteSection = (id: string) => {
+    if (confirm("Удалить этот блок?")) {
+      setSections((prev) => prev.filter((s) => s.id !== id));
       if (expandedId === id) setExpandedId(null);
     }
   };
 
-  const addSection = (
-    type: "hero" | "about" | "serviceSwitcher" | "reviews" | "faq",
-  ) => {
-    const templates = {
+  const updateProp = (sectionId: string, key: string, value: any) => {
+    setSections((prev) =>
+      prev.map((s) =>
+        s.id === sectionId ? { ...s, props: { ...s.props, [key]: value } } : s,
+      ),
+    );
+  };
+
+  const addSection = (type: CMSSection["type"]) => {
+    const templates: Record<string, any> = {
       hero: {
-        title: "Новый баннер",
-        description: "Описание баннера",
+        title: "Новый заголовок",
+        description: "",
         buttonText: "Кнопка",
         videoUrl: "",
       },
       about: {
-        name: "Новый профиль",
+        name: "Новое имя",
         avatarUrl: "",
-        skills: ["Скилл 1"],
-        badges: ["Гидинг"],
+        skills: [],
+        badges: [],
         socials: [],
       },
       serviceSwitcher: {
-        english: { title: "Языки", description: "Текст", phone: "", plans: [] },
-        guide: { title: "Туры", description: "Текст", phone: "", plans: [] },
+        english: { title: "English", description: "", phone: "" },
+        guide: { title: "Guide", description: "", phone: "" },
       },
-      reviews: { title: "Новые отзывы", row1: [], row2: [], row3: [] },
-      faq: {
-        title: "Новый FAQ",
-        items: [{ question: "Вопрос", answer: "Ответ" }],
-      },
+      reviews: { title: "Отзывы", row1: [], row2: [], row3: [] },
+      faq: { title: "FAQ", items: [{ question: "Вопрос", answer: "Ответ" }] },
     };
 
     const newSec: CMSSection = {
@@ -131,28 +172,9 @@ const Dashboard: React.FC = () => {
       isActive: true,
       props: JSON.parse(JSON.stringify(templates[type])),
     };
-
     setSections([...sections, newSec]);
     setExpandedId(newSec.id);
     setShowAddMenu(false);
-  };
-
-  const updateProp = (sectionId: string, key: string, value: any) => {
-    setSections(
-      sections.map((sec) => {
-        if (sec.id === sectionId) {
-          return {
-            ...sec,
-            props: { ...sec.props, [key]: value },
-          };
-        }
-        return sec;
-      }),
-    );
-  };
-
-  const handleLogout = () => {
-    window.location.href = "/cms/auth";
   };
 
   return (
@@ -160,577 +182,501 @@ const Dashboard: React.FC = () => {
       <aside className="w-full md:w-64 border-r border-slate-200 bg-white p-8 flex flex-col justify-between shrink-0">
         <div className="flex flex-col gap-10">
           <div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+            <span className="text-[10px] font-black uppercase text-slate-400 block mb-1">
               CMS Panel
             </span>
             <div className="font-bold text-xl tracking-wider text-slate-950">
               AT.ADMIN
             </div>
           </div>
-
           <nav className="flex flex-col gap-2">
-            <button className="w-full px-4 py-3 bg-slate-950 text-white rounded-xl text-left text-xs font-bold uppercase tracking-wider transition-colors">
+            <button className="w-full px-4 py-3 bg-slate-950 text-white rounded-xl text-left text-xs font-bold uppercase tracking-wider">
               Контент сайта
-            </button>
-            <button className="w-full px-4 py-3 hover:bg-slate-50 text-slate-500 hover:text-slate-950 rounded-xl text-left text-xs font-bold uppercase tracking-wider transition-colors duration-150">
-              Настройки
             </button>
           </nav>
         </div>
-
         <button
-          onClick={handleLogout}
-          className="w-full py-3.5 border border-slate-200 hover:border-slate-950 text-slate-500 hover:text-white hover:bg-slate-950 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-150 ease-out hover:-translate-y-px active:translate-y-px active:bg-slate-850"
+          onClick={() => (window.location.href = "/cms/auth")}
+          className="w-full py-3.5 border border-slate-200 hover:bg-slate-950 hover:text-white rounded-xl text-xs font-bold uppercase transition-all"
         >
           Выйти
         </button>
       </aside>
 
-      <main className="grow p-8 md:p-12 max-w-5xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-200 pb-8 mb-10">
-          <div>
-            <h1 className="text-3xl font-bold uppercase tracking-tight text-slate-950">
-              Управление лендингом
-            </h1>
-            <p className="text-slate-400 text-sm mt-1">
-              Зажми и тащи карточку за левый край для сортировки. Кликни для
-              редактирования.
-            </p>
-          </div>
+      <main className="grow p-8 md:p-12 w-full max-w-5xl">
+        <div className="border-b border-slate-200 pb-8 mb-10">
+          <h1 className="text-3xl font-bold uppercase tracking-tight text-slate-950">
+            Управление контентом сайта
+          </h1>
+          <p className="text-slate-400 text-sm mt-1">
+            Редактируйте содержимое сайта, добавляйте новые блоки и управляйте
+            ими в реальном времени.
+          </p>
         </div>
 
-        <div className="flex flex-col gap-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">
-            Конструктор структуры сайта:
-          </span>
-
-          {sections.map((sec, index) => {
-            const isExpanded = expandedId === sec.id;
-
-            return (
-              <div
+        <Reorder.Group
+          axis="y"
+          values={sections}
+          onReorder={setSections}
+          className="flex flex-col gap-4"
+        >
+          <AnimatePresence initial={false}>
+            {sections.map((sec) => (
+              <SectionItem
                 key={sec.id}
-                onClick={() => setExpandedId(isExpanded ? null : sec.id)}
-                draggable={true}
-                onDragStart={() => handleDragStart(index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDrop={(e) => handleDrop(e, index)}
-                className={`p-6 border rounded-3xl bg-white flex flex-col shadow-sm transition-all duration-300 cursor-grab active:cursor-grabbing ${
-                  isExpanded
-                    ? "border-slate-950 shadow-md"
-                    : "border-slate-200 hover:border-slate-350"
-                } ${draggedIndex === index ? "opacity-40" : ""}`}
-              >
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
-                  <div className="flex items-center gap-4">
-                    <div className="text-slate-300 group-hover:text-slate-600 transition-colors shrink-0">
-                      <svg
-                        className="w-4 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2.5}
-                      >
-                        <circle cx="5" cy="5" r="1" fill="currentColor" />
-                        <circle cx="5" cy="12" r="1" fill="currentColor" />
-                        <circle cx="5" cy="19" r="1" fill="currentColor" />
-                        <circle cx="11" cy="5" r="1" fill="currentColor" />
-                        <circle cx="11" cy="12" r="1" fill="currentColor" />
-                        <circle cx="11" cy="19" r="1" fill="currentColor" />
-                      </svg>
-                    </div>
+                sec={sec}
+                isExpanded={expandedId === sec.id}
+                onExpand={() =>
+                  setExpandedId(expandedId === sec.id ? null : sec.id)
+                }
+                onToggle={() => toggleSection(sec.id)}
+                onDelete={() => deleteSection(sec.id)}
+                updateProp={updateProp}
+              />
+            ))}
+          </AnimatePresence>
+        </Reorder.Group>
 
+        <motion.div
+          layout
+          initial={false}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className={`mt-12 border-2 rounded-[2.5rem] bg-white overflow-hidden ${
+            showAddMenu
+              ? "border-dashed border-slate-950 shadow-sm"
+              : "border-dashed border-slate-200 hover:border-slate-400 shadow-sm"
+          }`}
+        >
+          <AnimatePresence mode="popLayout" initial={false}>
+            {!showAddMenu ? (
+              <motion.button
+                key="collapsed"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => setShowAddMenu(true)}
+                className="w-full p-10 flex flex-col items-center justify-center gap-3 group"
+              >
+                <div className="w-12 h-12 rounded-full bg-slate-50 group-hover:bg-slate-950 group-hover:text-white flex items-center justify-center transition-all duration-300">
+                  <Plus size={20} strokeWidth={3} />
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-slate-950 transition-colors">
+                    Добавить новый блок
+                  </span>
+                </div>
+              </motion.button>
+            ) : (
+              <motion.div
+                key="expanded"
+                layout
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="p-8"
+              >
+                <div className="flex flex-col gap-8">
+                  <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                        Type: {sec.type}
-                      </span>
-                      <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">
-                        {sec.props.title || sec.props.name || "Без названия"}
+                      <h3 className="text-base font-bold text-slate-950 uppercase tracking-tight">
+                        Тип нового блока
                       </h3>
+                      <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-1">
+                        Выберите нужную секцию
+                      </p>
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                    <span
-                      className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full ${
-                        sec.isActive
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                          : "bg-slate-100 text-slate-400 border border-slate-200"
-                      }`}
+                    <button
+                      onClick={() => setShowAddMenu(false)}
+                      className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-full transition-colors group"
                     >
-                      {sec.isActive ? "Активен" : "Выключен"}
-                    </span>
+                      <X
+                        size={20}
+                        className="text-slate-400 group-hover:text-slate-950"
+                      />
+                    </button>
+                  </div>
 
-                    <div className="flex gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                    {sectionTypes.map((item) => (
                       <button
-                        onClick={(e) => toggleSection(sec.id, e)}
-                        className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all duration-150 ease-out ${
-                          sec.isActive
-                            ? "border-slate-250 text-slate-500 hover:border-slate-950 hover:bg-slate-950 hover:text-white"
-                            : "border-slate-250 text-slate-950 bg-slate-50 hover:bg-slate-950 hover:text-white"
-                        }`}
+                        key={item.id}
+                        onClick={() => addSection(item.id as any)}
+                        className="flex flex-col items-center gap-3 p-5 rounded-3xl border border-slate-100 hover:border-slate-950 hover:bg-slate-50 transition-all group"
                       >
-                        {sec.isActive ? "Выкл" : "Вкл"}
+                        <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 group-hover:bg-white group-hover:shadow-sm transition-all">
+                          <item.icon size={20} />
+                        </div>
+                        <span className="text-[9px] ...">{item.label}</span>
                       </button>
-                      <button
-                        onClick={(e) => deleteSection(sec.id, e)}
-                        className="px-4 py-2 border border-rose-200 hover:border-rose-600 text-rose-600 hover:text-white hover:bg-rose-600 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-150 ease-out"
-                      >
-                        Удалить
-                      </button>
-                    </div>
+                    ))}
                   </div>
                 </div>
-
-                <div
-                  className={`grid transition-all duration-300 ease-in-out ${
-                    isExpanded
-                      ? "grid-rows-[1fr] opacity-100 mt-6 pt-6 border-t border-slate-100"
-                      : "grid-rows-[0fr] opacity-0 pointer-events-none"
-                  }`}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="overflow-hidden">
-                    <div className="flex flex-col gap-4 text-left">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">
-                        Настройки контента:
-                      </span>
-
-                      {sec.type === "hero" && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 block">
-                              Заголовок
-                            </label>
-                            <input
-                              type="text"
-                              value={sec.props.title}
-                              onChange={(e) =>
-                                updateProp(sec.id, "title", e.target.value)
-                              }
-                              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-slate-950 bg-slate-50/40"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 block">
-                              Текст кнопки
-                            </label>
-                            <input
-                              type="text"
-                              value={sec.props.buttonText}
-                              onChange={(e) =>
-                                updateProp(sec.id, "buttonText", e.target.value)
-                              }
-                              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-slate-950 bg-slate-50/40"
-                            />
-                          </div>
-                          <div className="md:col-span-2">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 block">
-                              Описание
-                            </label>
-                            <textarea
-                              rows={3}
-                              value={sec.props.description}
-                              onChange={(e) =>
-                                updateProp(
-                                  sec.id,
-                                  "description",
-                                  e.target.value,
-                                )
-                              }
-                              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-slate-950 bg-slate-50/40 resize-none"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {sec.type === "about" && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 block">
-                              Имя профиля
-                            </label>
-                            <input
-                              type="text"
-                              value={sec.props.name}
-                              onChange={(e) =>
-                                updateProp(sec.id, "name", e.target.value)
-                              }
-                              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-slate-950 bg-slate-50/40"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 block">
-                              Путь к фото
-                            </label>
-                            <input
-                              type="text"
-                              value={sec.props.avatarUrl}
-                              onChange={(e) =>
-                                updateProp(sec.id, "avatarUrl", e.target.value)
-                              }
-                              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-slate-950 bg-slate-50/40"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {sec.type === "serviceSwitcher" && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="p-4 border border-slate-100 rounded-xl bg-slate-50/30">
-                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-2">
-                              Английский:
-                            </span>
-                            <div className="flex flex-col gap-3">
-                              <input
-                                type="text"
-                                placeholder="Заголовок"
-                                value={sec.props.english.title}
-                                onChange={(e) => {
-                                  const updatedEng = {
-                                    ...sec.props.english,
-                                    title: e.target.value,
-                                  };
-                                  updateProp(sec.id, "english", updatedEng);
-                                }}
-                                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white"
-                              />
-                              <input
-                                type="text"
-                                placeholder="Телефон"
-                                value={sec.props.english.phone}
-                                onChange={(e) => {
-                                  const updatedEng = {
-                                    ...sec.props.english,
-                                    phone: e.target.value,
-                                  };
-                                  updateProp(sec.id, "english", updatedEng);
-                                }}
-                                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="p-4 border border-slate-100 rounded-xl bg-slate-50/30">
-                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-2">
-                              Экскурсии:
-                            </span>
-                            <div className="flex flex-col gap-3">
-                              <input
-                                type="text"
-                                placeholder="Заголовок"
-                                value={sec.props.guide.title}
-                                onChange={(e) => {
-                                  const updatedGuide = {
-                                    ...sec.props.guide,
-                                    title: e.target.value,
-                                  };
-                                  updateProp(sec.id, "guide", updatedGuide);
-                                }}
-                                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white"
-                              />
-                              <input
-                                type="text"
-                                placeholder="Телефон"
-                                value={sec.props.guide.phone}
-                                onChange={(e) => {
-                                  const updatedGuide = {
-                                    ...sec.props.guide,
-                                    phone: e.target.value,
-                                  };
-                                  updateProp(sec.id, "guide", updatedGuide);
-                                }}
-                                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {sec.type === "faq" && (
-                        <div className="flex flex-col gap-4">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                              Список вопросов и ответов:
-                            </span>
-                            <button
-                              onClick={() => {
-                                const updatedItems = [
-                                  ...sec.props.items,
-                                  {
-                                    question: "Новый вопрос",
-                                    answer: "Новый ответ",
-                                  },
-                                ];
-                                updateProp(sec.id, "items", updatedItems);
-                              }}
-                              className="px-3 py-1.5 border border-slate-200 hover:border-slate-950 hover:bg-slate-950 hover:text-white rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors"
-                            >
-                              Добавить вопрос
-                            </button>
-                          </div>
-
-                          {sec.props.items.map((faqItem: any, fIdx: number) => (
-                            <div
-                              key={fIdx}
-                              className="p-4 border border-slate-100 rounded-xl bg-slate-50/40 flex flex-col gap-3 relative"
-                            >
-                              <button
-                                onClick={() => {
-                                  const updatedItems = sec.props.items.filter(
-                                    (_: any, i: number) => i !== fIdx,
-                                  );
-                                  updateProp(sec.id, "items", updatedItems);
-                                }}
-                                className="absolute right-4 top-4 text-[9px] font-bold uppercase tracking-wider text-rose-600 hover:text-rose-800"
-                              >
-                                Удалить
-                              </button>
-
-                              <div className="max-w-[80%]">
-                                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 block">
-                                  Вопрос {fIdx + 1}
-                                </label>
-                                <input
-                                  type="text"
-                                  value={faqItem.question}
-                                  onChange={(e) => {
-                                    const updatedItems = [...sec.props.items];
-                                    updatedItems[fIdx] = {
-                                      ...faqItem,
-                                      question: e.target.value,
-                                    };
-                                    updateProp(sec.id, "items", updatedItems);
-                                  }}
-                                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-slate-950 bg-white"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 block">
-                                  Ответ {fIdx + 1}
-                                </label>
-                                <textarea
-                                  rows={2}
-                                  value={faqItem.answer}
-                                  onChange={(e) => {
-                                    const updatedItems = [...sec.props.items];
-                                    updatedItems[fIdx] = {
-                                      ...faqItem,
-                                      answer: e.target.value,
-                                    };
-                                    updateProp(sec.id, "items", updatedItems);
-                                  }}
-                                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-slate-950 bg-white resize-none"
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {sec.type === "reviews" && (
-                        <div className="flex flex-col gap-6">
-                          <div className="max-w-md">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 block">
-                              Заголовок секции
-                            </label>
-                            <input
-                              type="text"
-                              value={sec.props.title}
-                              onChange={(e) =>
-                                updateProp(sec.id, "title", e.target.value)
-                              }
-                              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-slate-950 bg-slate-50/40"
-                            />
-                          </div>
-
-                          {["row1", "row2", "row3"].map((rowKey, rIdx) => {
-                            const currentRow = sec.props[rowKey] || [];
-
-                            return (
-                              <div
-                                key={rowKey}
-                                className="p-5 border border-slate-200 rounded-2xl bg-slate-50/30 flex flex-col gap-4"
-                              >
-                                <div className="flex justify-between items-center">
-                                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">
-                                    Строка бегущей ленты {rIdx + 1}
-                                  </span>
-                                  <button
-                                    onClick={() => {
-                                      const updatedRow = [
-                                        ...currentRow,
-                                        { text: "Новый отзыв", author: "Имя" },
-                                      ];
-                                      updateProp(sec.id, rowKey, updatedRow);
-                                    }}
-                                    className="px-3 py-1.5 border border-slate-200 hover:border-slate-950 hover:bg-slate-950 hover:text-white rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors"
-                                  >
-                                    Добавить отзыв
-                                  </button>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  {currentRow.map(
-                                    (reviewItem: any, idx: number) => (
-                                      <div
-                                        key={idx}
-                                        className="p-4 border border-slate-100 rounded-xl bg-white flex flex-col gap-3 relative"
-                                      >
-                                        <button
-                                          onClick={() => {
-                                            const updatedRow =
-                                              currentRow.filter(
-                                                (_: any, i: number) =>
-                                                  i !== idx,
-                                              );
-                                            updateProp(
-                                              sec.id,
-                                              rowKey,
-                                              updatedRow,
-                                            );
-                                          }}
-                                          className="absolute right-3 top-3 text-[9px] font-bold uppercase tracking-wider text-rose-600 hover:text-rose-800"
-                                        >
-                                          Удалить
-                                        </button>
-
-                                        <div className="max-w-[85%]">
-                                          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 block">
-                                            Текст отзыва
-                                          </label>
-                                          <textarea
-                                            rows={2}
-                                            value={reviewItem.text}
-                                            onChange={(e) => {
-                                              const updatedRow = [
-                                                ...currentRow,
-                                              ];
-                                              updatedRow[idx] = {
-                                                ...reviewItem,
-                                                text: e.target.value,
-                                              };
-                                              updateProp(
-                                                sec.id,
-                                                rowKey,
-                                                updatedRow,
-                                              );
-                                            }}
-                                            className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-slate-950 bg-white resize-none"
-                                          />
-                                        </div>
-
-                                        <div>
-                                          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 block">
-                                            Автор
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={reviewItem.author}
-                                            onChange={(e) => {
-                                              const updatedRow = [
-                                                ...currentRow,
-                                              ];
-                                              updatedRow[idx] = {
-                                                ...reviewItem,
-                                                author: e.target.value,
-                                              };
-                                              updateProp(
-                                                sec.id,
-                                                rowKey,
-                                                updatedRow,
-                                              );
-                                            }}
-                                            className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-slate-950 bg-white"
-                                          />
-                                        </div>
-                                      </div>
-                                    ),
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-
-          {!showAddMenu ? (
-            <div
-              onClick={() => setShowAddMenu(true)}
-              className="border-2 border-dashed border-slate-200 hover:border-slate-950 p-6 rounded-3xl flex items-center justify-center cursor-pointer hover:bg-slate-50/50 transition-all duration-300 gap-3 text-slate-400 hover:text-slate-950"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={3}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              <span className="text-xs font-bold uppercase tracking-widest">
-                Добавить новый блок
-              </span>
-            </div>
-          ) : (
-            <div className="border-2 border-dashed border-slate-950 p-6 rounded-3xl bg-white flex flex-col gap-4 animate-fade-in">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block text-center">
-                Выберите тип создаваемого блока:
-              </span>
-              <div className="flex flex-wrap gap-2.5 justify-center">
-                <button
-                  onClick={() => addSection("hero")}
-                  className="px-4 py-2.5 border border-slate-200 hover:border-slate-950 hover:bg-slate-950 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
-                >
-                  Hero Баннер
-                </button>
-                <button
-                  onClick={() => addSection("about")}
-                  className="px-4 py-2.5 border border-slate-200 hover:border-slate-950 hover:bg-slate-950 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
-                >
-                  About Профиль
-                </button>
-                <button
-                  onClick={() => addSection("serviceSwitcher")}
-                  className="px-4 py-2.5 border border-slate-200 hover:border-slate-950 hover:bg-slate-950 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
-                >
-                  Услуги Switcher
-                </button>
-                <button
-                  onClick={() => addSection("reviews")}
-                  className="px-4 py-2.5 border border-slate-200 hover:border-slate-950 hover:bg-slate-950 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
-                >
-                  Reviews Отзывы
-                </button>
-                <button
-                  onClick={() => addSection("faq")}
-                  className="px-4 py-2.5 border border-slate-200 hover:border-slate-950 hover:bg-slate-950 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
-                >
-                  FAQ Вопросы
-                </button>
-                <button
-                  onClick={() => setShowAddMenu(false)}
-                  className="px-4 py-2.5 border border-rose-200 hover:border-rose-600 hover:bg-rose-600 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
-                >
-                  Отмена
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </main>
+
+      <AnimatePresence>
+        <motion.aside
+          initial={{ x: 400, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: 400, opacity: 0 }}
+          transition={{ type: "spring", damping: 25, stiffness: 200 }}
+          className="w-full max-w-2xl bg-white border-l border-slate-200 flex flex-col h-screen sticky top-0 z-50 shadow-[0_0_50px_-12px_rgba(0,0,0,0.15)]"
+        >
+          <div className="p-8 pb-6 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-widest">
+                JSON
+              </h3>
+              <p className="text-[10px] text-slate-400 uppercase font-bold">
+                Редактирование в реальном времени
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={downloadJson}
+                title="Скачать JSON файл"
+                className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 group"
+              >
+                <Download size={16} className="group-hover:text-slate-950" />
+              </button>
+              <button
+                onClick={copyToClipboard}
+                className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500"
+              >
+                {copySuccess ? (
+                  <Check size={16} className="text-emerald-500" />
+                ) : (
+                  <Copy size={16} />
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="relative grow px-8 pb-4 flex flex-col">
+            <textarea
+              value={jsonInput}
+              onChange={(e) => handleJsonChange(e.target.value)}
+              spellCheck={false}
+              className={`w-full h-full p-4 bg-slate-900 text-emerald-400 font-mono text-xs rounded-2xl outline-none resize-none shadow-inner leading-relaxed ${jsonError ? "ring-2 ring-rose-500/50" : "focus:ring-2 ring-indigo-500/30"}`}
+            />
+
+            {jsonError && (
+              <div className="absolute bottom-4 left-4 right-4 p-3 bg-rose-500/90 backdrop-blur-md text-white text-[10px] font-bold uppercase rounded-xl">
+                Ошибка синтаксиса: {jsonError.slice(0, 40)}...
+              </div>
+            )}
+          </div>
+
+          <div className="p-4 bg-slate-50 border-t border-slate-100"></div>
+        </motion.aside>
+      </AnimatePresence>
     </div>
   );
 };
+
+const SectionItem = ({
+  sec,
+  isExpanded,
+  onExpand,
+  onToggle,
+  onDelete,
+  updateProp,
+}: any) => {
+  const controls = useDragControls();
+
+  return (
+    <Reorder.Item
+      value={sec}
+      id={sec.id}
+      dragListener={false}
+      dragControls={controls}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{
+        opacity: 0,
+        height: 0,
+        marginBottom: 0,
+        scale: 0.95,
+        transition: {
+          height: { duration: 0.3 },
+          opacity: { duration: 0.2 },
+        },
+      }}
+      layout
+      whileDrag={{
+        scale: 1.02,
+        boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)",
+      }}
+      className={`border rounded-3xl bg-white flex flex-col transition-shadow duration-300 ${
+        isExpanded
+          ? "border-slate-950 shadow-lg z-10"
+          : "border-slate-200 shadow-sm"
+      }`}
+    >
+      <div className="flex items-center p-6 w-full">
+        <div
+          onPointerDown={(e) => controls.start(e)}
+          className="text-slate-300 hover:text-slate-600 transition-colors shrink-0 p-2 mr-2 cursor-grab active:cursor-grabbing"
+        >
+          <svg
+            className="w-4 h-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <circle cx="5" cy="5" r="1" fill="currentColor" />
+            <circle cx="5" cy="12" r="1" fill="currentColor" />
+            <circle cx="5" cy="19" r="1" fill="currentColor" />
+            <circle cx="11" cy="5" r="1" fill="currentColor" />
+            <circle cx="11" cy="12" r="1" fill="currentColor" />
+            <circle cx="11" cy="19" r="1" fill="currentColor" />
+          </svg>
+        </div>
+
+        <div className="grow cursor-pointer" onClick={onExpand}>
+          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+            {sec.type}
+          </span>
+          <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">
+            {sec.props.title || sec.props.name || "Без названия"}
+          </h3>
+        </div>
+
+        <div className="flex items-center gap-3 ml-4">
+          <span
+            className={`hidden sm:block text-[10px] font-bold uppercase px-3 py-1 rounded-full ${sec.isActive ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400"}`}
+          >
+            {sec.isActive ? "Активен" : "Выкл"}
+          </span>
+          <button
+            onClick={onToggle}
+            className="px-3 py-1.5 border border-slate-200 rounded-lg text-[10px] font-bold uppercase hover:bg-slate-950 hover:text-white transition-all"
+          >
+            Вкл/Выкл
+          </button>
+          <button
+            onClick={onDelete}
+            className="px-4 py-2 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg text-[10px] font-bold uppercase transition-all"
+          >
+            Удалить
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            layout
+            initial={{ height: 0, opacity: 0 }}
+            style={{ height: 0, opacity: 0 }}
+            animate={{
+              height: "auto",
+              opacity: 1,
+              transition: {
+                height: {
+                  duration: 0.3,
+                  ease: "easeOut",
+                },
+                opacity: { duration: 0.2, delay: 0.1 },
+              },
+            }}
+            exit={{
+              height: 0,
+              opacity: 0,
+              transition: {
+                height: { duration: 0.3 },
+                opacity: { duration: 0.15 },
+              },
+            }}
+            className="overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 pb-6">
+              <div className="pt-6 border-t border-slate-100 flex flex-col gap-6">
+                {sec.type === "hero" && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      label="Заголовок"
+                      value={sec.props.title}
+                      onChange={(v) => updateProp(sec.id, "title", v)}
+                    />
+                    <Input
+                      label="Текст кнопки"
+                      value={sec.props.buttonText}
+                      onChange={(v) => updateProp(sec.id, "buttonText", v)}
+                    />
+                    <div className="col-span-2">
+                      <label className="text-[9px] font-black uppercase text-slate-400 mb-1 block">
+                        Описание
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={sec.props.description}
+                        onChange={(e) =>
+                          updateProp(sec.id, "description", e.target.value)
+                        }
+                        className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-slate-950 outline-none resize-none"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {sec.type === "about" && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      label="Имя профиля"
+                      value={sec.props.name}
+                      onChange={(v) => updateProp(sec.id, "name", v)}
+                    />
+                    <Input
+                      label="Аватар URL"
+                      value={sec.props.avatarUrl}
+                      onChange={(v) => updateProp(sec.id, "avatarUrl", v)}
+                    />
+                  </div>
+                )}
+
+                {sec.type === "serviceSwitcher" && (
+                  <div className="grid grid-cols-2 gap-6">
+                    {["english", "guide"].map((k) => (
+                      <div
+                        key={k}
+                        className="p-4 bg-slate-50/50 rounded-2xl flex flex-col gap-3"
+                      >
+                        <span className="text-[10px] font-black uppercase text-slate-400">
+                          {k === "english" ? "Языки" : "Гидинг"}
+                        </span>
+                        <Input
+                          label="Заголовок"
+                          value={sec.props[k].title}
+                          onChange={(v) =>
+                            updateProp(sec.id, k, { ...sec.props[k], title: v })
+                          }
+                        />
+                        <Input
+                          label="Телефон"
+                          value={sec.props[k].phone}
+                          onChange={(v) =>
+                            updateProp(sec.id, k, { ...sec.props[k], phone: v })
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {sec.type === "faq" && (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">
+                        Вопросы и ответы
+                      </span>
+                      <button
+                        onClick={() =>
+                          updateProp(sec.id, "items", [
+                            ...sec.props.items,
+                            { question: "", answer: "" },
+                          ])
+                        }
+                        className="text-[10px] font-bold text-slate-950 uppercase"
+                      >
+                        + Добавить
+                      </button>
+                    </div>
+                    {sec.props.items.map((item: any, idx: number) => (
+                      <div
+                        key={idx}
+                        className="p-4 border border-slate-100 rounded-2xl flex flex-col gap-2 relative"
+                      >
+                        <button
+                          onClick={() =>
+                            updateProp(
+                              sec.id,
+                              "items",
+                              sec.props.items.filter(
+                                (_: any, i: number) => i !== idx,
+                              ),
+                            )
+                          }
+                          className="absolute top-4 right-4 text-rose-600 text-[10px] font-bold uppercase"
+                        >
+                          Удалить
+                        </button>
+                        <input
+                          placeholder="Вопрос"
+                          value={item.question}
+                          onChange={(e) => {
+                            const newItems = [...sec.props.items];
+                            newItems[idx].question = e.target.value;
+                            updateProp(sec.id, "items", newItems);
+                          }}
+                          className="w-full bg-transparent font-bold text-sm outline-none"
+                        />
+                        <textarea
+                          placeholder="Ответ"
+                          value={item.answer}
+                          onChange={(e) => {
+                            const newItems = [...sec.props.items];
+                            newItems[idx].answer = e.target.value;
+                            updateProp(sec.id, "items", newItems);
+                          }}
+                          className="w-full bg-transparent text-xs text-slate-500 outline-none resize-none"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {sec.type === "reviews" && (
+                  <div className="flex flex-col gap-4">
+                    <Input
+                      label="Заголовок секции"
+                      value={sec.props.title}
+                      onChange={(v) => updateProp(sec.id, "title", v)}
+                    />
+                    <p className="text-[10px] text-slate-400">
+                      Настройки рядов отзывов...
+                    </p>
+                  </div>
+                )}
+
+                <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">
+                  ID: {sec.id} • Type: {sec.type}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Reorder.Item>
+  );
+};
+
+const Input = ({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) => (
+  <div className="flex flex-col gap-1">
+    <label className="text-[9px] font-black uppercase text-slate-400 mb-1">
+      {label}
+    </label>
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:border-slate-950 outline-none bg-white transition-colors"
+    />
+  </div>
+);
 
 export default Dashboard;
