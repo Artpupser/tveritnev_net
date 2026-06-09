@@ -30,7 +30,7 @@ public sealed class ImagesController(IValidatorManager validatorManager, PublicF
             return;
         }
 
-        response.WriteStrToCache("success");
+        response.WriteStrToCache(string.Empty);
     }
 
     [ControllerHandler("/delete", HttpMethodType.POST, typeof(ModifyLoggerMiddleware),
@@ -45,6 +45,7 @@ public sealed class ImagesController(IValidatorManager validatorManager, PublicF
             response.PushError("Image deleting wrong.");
             return;
         }
+        response.WriteStrToCache(string.Empty);
     }
 
     #endregion

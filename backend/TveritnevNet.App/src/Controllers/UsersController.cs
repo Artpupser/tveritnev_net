@@ -2,6 +2,8 @@ using PupaMVCF.Framework.Controllers;
 using PupaMVCF.Framework.Core;
 using PupaMVCF.Framework.Database;
 using PupaMVCF.Framework.Validations;
+using PupaMVCF.Framework.Generators;
+using System.Security.Claims;
 
 using TveritnevNet.App.Middleware;
 using TveritnevNet.App.Models;
@@ -14,7 +16,7 @@ namespace TveritnevNet.App.Controllers;
 
 [InitializatorEye(true)]
 [ControllerScheme("/users")]
-public sealed class UsersController(IValidatorManager validatorManager, IDatabaseConnectionFactory databaseConnectionFactory) : Controller
+public sealed class UsersController(IValidatorManager validatorManager, JwtTokenGeneratorService jwtTokenGeneratorService, IDatabaseConnectionFactory databaseConnectionFactory) : Controller
 {
     private readonly UserRepository _userRepository = new(databaseConnectionFactory);
     private readonly SessionRepository _sessionRepository = new(databaseConnectionFactory);
@@ -24,12 +26,12 @@ public sealed class UsersController(IValidatorManager validatorManager, IDatabas
     [ControllerHandler("/me", HttpMethodType.GET, typeof(ModifyLoggerMiddleware), typeof(MemberSessionMiddleware))]
     private async Task UsersMeHandler(Request request, Response response, CancellationToken cancellationToken)
     {
-        var usersDatabaseModel = request.FeatureCollection.Get<UsersDatabaseModel>()!;
+        var userDatabaseModel = request.FeatureCollection.Get<UserDatabaseModel>()!;
         response.WriteTJsonToCache(new
         {
-            Username = usersDatabaseModel.Username,
-            Password = usersDatabaseModel.Password,
-            Role = usersDatabaseModel.Role
+            username = userDatabaseModel.Username,
+            role = userDatabaseModel.Role,
+            id = userDatabaseModel.Id
         });
     }
 
@@ -37,24 +39,24 @@ public sealed class UsersController(IValidatorManager validatorManager, IDatabas
        typeof(MemberSessionMiddleware))]
     private async Task UsersMeRoleHandler(Request request, Response response, CancellationToken cancellationToken)
     {
-        var usersDatabaseModel = request.FeatureCollection.Get<UsersDatabaseModel>()!;
-        response.WriteTJsonToCache(new { Role = usersDatabaseModel.Role });
+        var userDatabaseModel = request.FeatureCollection.Get<UserDatabaseModel>()!;
+        response.WriteTJsonToCache(new { role = userDatabaseModel.Role });
     }
 
     [ControllerHandler("/me/username", HttpMethodType.GET, typeof(ModifyLoggerMiddleware),
        typeof(MemberSessionMiddleware))]
     private async Task UsersMeUsernameHandler(Request request, Response response, CancellationToken cancellationToken)
     {
-        var usersDatabaseModel = request.FeatureCollection.Get<UsersDatabaseModel>()!;
-        response.WriteTJsonToCache(new { Username = usersDatabaseModel.Username });
+        var userDatabaseModel = request.FeatureCollection.Get<UserDatabaseModel>()!;
+        response.WriteTJsonToCache(new { username = userDatabaseModel.Username });
     }
 
     [ControllerHandler("/me/id", HttpMethodType.GET, typeof(ModifyLoggerMiddleware),
        typeof(MemberSessionMiddleware))]
     private async Task UsersMeIdHandler(Request request, Response response, CancellationToken cancellationToken)
     {
-        var usersDatabaseModel = request.FeatureCollection.Get<UsersDatabaseModel>()!;
-        response.WriteTJsonToCache(new { Id = usersDatabaseModel.Id });
+        var userDatabaseModel = request.FeatureCollection.Get<UserDatabaseModel>()!;
+        response.WriteTJsonToCache(new { id = userDatabaseModel.Id });
     }
 
     #endregion
@@ -74,16 +76,15 @@ public sealed class UsersController(IValidatorManager validatorManager, IDatabas
             return;
         }
 
-        if (request.GetCookie("Token").Out(out var token))
-        {
-            if (!(await _sessionRepository.WhereOneAsync("user_id", usersDatabaseModel.Id, cancellationToken)).Out(
-                   out var sessionDatabaseModel))
-                await _sessionRepository.Create(usersDatabaseModel.Id, token, cancellationToken);
-            else
-                await _sessionRepository.Regenerate(usersDatabaseModel.Id, token, cancellationToken);
-        }
+        var token = await jwtTokenGeneratorService.GenerateJwt(DateTimeOffset.UtcNow + TimeSpan.FromDays(7), [new Claim(ClaimTypes.NameIdentifier, $"{usersDatabaseModel.Id}")]);
 
-        response.WriteStrToCache("success");
+        if (!(await _sessionRepository.WhereOneAsync("user_id", usersDatabaseModel.Id, cancellationToken)).Out(
+                  out var sessionDatabaseModel))
+            await _sessionRepository.Create(usersDatabaseModel.Id, token, cancellationToken);
+        else
+            await _sessionRepository.Regenerate(usersDatabaseModel.Id, token, cancellationToken);
+
+        response.WriteTJsonToCache(new { token });
     }
 
     [ControllerHandler("/change_password", HttpMethodType.POST, typeof(ModifyLoggerMiddleware),
@@ -94,9 +95,9 @@ public sealed class UsersController(IValidatorManager validatorManager, IDatabas
         if (!(await validatorManager.ValidFromRequest<ChangePasswordModel>(request, response, cancellationToken))
             .Out(out var changePasswordModel)) return;
 
-        var usersDatabaseModel = request.FeatureCollection.Get<UsersDatabaseModel>()!;
+        var userDatabaseModel = request.FeatureCollection.Get<UserDatabaseModel>()!;
 
-        if (usersDatabaseModel.Password == CryptoUtils.Sha256(changePasswordModel.CurrentPassword))
+        if (userDatabaseModel.Password != CryptoUtils.Sha256(changePasswordModel.CurrentPassword))
         {
             response.PushError("Current password is wrong.");
             return;
@@ -109,14 +110,14 @@ public sealed class UsersController(IValidatorManager validatorManager, IDatabas
         }
 
 
-        if (!await _userRepository.ChangeWhere("id", usersDatabaseModel.Id, "password",
+        if (!await _userRepository.ChangeWhere("id", userDatabaseModel.Id, "password",
                CryptoUtils.Sha256(changePasswordModel.NewPassword), cancellationToken))
         {
             response.PushError("Wrong change password.");
             return;
         }
 
-        response.WriteStrToCache("success");
+        response.WriteStrToCache(string.Empty);
     }
 
 
@@ -124,7 +125,7 @@ public sealed class UsersController(IValidatorManager validatorManager, IDatabas
        typeof(MemberSessionMiddleware))]
     private async Task UsersLogoutHandler(Request request, Response response, CancellationToken cancellationToken)
     {
-        var usersDatabaseModel = request.FeatureCollection.Get<UsersDatabaseModel>()!;
+        var usersDatabaseModel = request.FeatureCollection.Get<UserDatabaseModel>()!;
 
         if ((await _sessionRepository.Delete("user_id", usersDatabaseModel.Id.ToString(), cancellationToken))
             .Out(out _))
@@ -133,7 +134,7 @@ public sealed class UsersController(IValidatorManager validatorManager, IDatabas
             return;
         }
 
-        response.PushError("Logout failed");
+        response.WriteStrToCache(string.Empty);
     }
 
     #endregion

@@ -41,7 +41,7 @@ public sealed class ConfigsController : Controller
 
         if (CheckWrongWords(configLoadModel.Name))
         {
-            response.PushError("Your query contains prohibited words");
+            response.PushError("Your query contains prohibited words.");
             return;
         }
 
@@ -77,7 +77,7 @@ public sealed class ConfigsController : Controller
         if (!(await _configsRepository.WhereOneAsync("name", $"default_{configLoadModel.Name}", cancellationToken)).Out(
                out var configsDatabaseModel))
         {
-            response.PushError("Error load config from storage");
+            response.PushError("Error load config from storage.");
             return;
         }
 
@@ -97,24 +97,24 @@ public sealed class ConfigsController : Controller
 
         if (CheckWrongWords(configSaveModel.Name))
         {
-            response.PushError("Your query contains prohibited words");
+            response.PushError("Your query contains prohibited words.");
             return;
         }
 
         if (await _configsRepository.ChangeWhere("name", configSaveModel.Name, "json", configSaveModel.Json,
                cancellationToken))
         {
-            response.WriteStrToCache("");
+            response.WriteStrToCache(string.Empty);
             return;
         }
 
-        response.PushError("Change config is wrong");
+        response.PushError("Change config is wrong.");
     }
 
     #endregion
 
     private bool CheckWrongWords(string content)
     {
-        return Regex.IsMatch(_pattern, content, RegexOptions.IgnoreCase);
+        return Regex.IsMatch(content, _pattern, RegexOptions.IgnoreCase);
     }
 }

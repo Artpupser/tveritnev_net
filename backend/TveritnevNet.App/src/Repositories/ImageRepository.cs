@@ -17,7 +17,7 @@ public sealed class ImageRepository(PublicFolder publicFolder, IDatabaseConnecti
         try
         {
             var fileOption = publicFolder.Virtual.GetOrCreateFileIn(name);
-            if (fileOption.Out(out var file))
+            if (!fileOption.Out(out var file))
                 return Option.Fail();
             await file.WriteBytesAsync(image, cancellationToken);
             if (file.SizeInBytes != image.Length)
