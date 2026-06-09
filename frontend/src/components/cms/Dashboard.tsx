@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import Sidebar from "@/components/cms/components/Sidebar";
+import { useAuth } from "@/hooks/useAuth";
+import apiClient from "@/lib/apiClient";
 import {
   Reorder,
   useDragControls,
@@ -16,6 +19,10 @@ import {
   Copy,
   Check,
   Download,
+  ShieldCheck,
+  Image as ImageIcon,
+  Settings,
+  LogOut,
 } from "lucide-react";
 
 interface CMSSection {
@@ -34,6 +41,12 @@ const sectionTypes = [
 ];
 
 const Dashboard: React.FC = () => {
+  const [currentPath, setCurrentPath] = useState("");
+
+  useEffect(() => {
+    setCurrentPath(window.location.pathname);
+  }, []);
+
   const [sections, setSections] = useState<CMSSection[]>([
     {
       id: "sec_1",
@@ -85,6 +98,60 @@ const Dashboard: React.FC = () => {
   const [jsonInput, setJsonInput] = useState("");
   const [copySuccess, setCopySuccess] = useState(false);
   const [jsonError, setJsonError] = useState<string | null>(null);
+
+  const { user, loading: authLoading } = useAuth();
+  const [isDataLoading, setIsDataLoading] = useState(true);
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      const loadConfig = async () => {
+        try {
+          const res = await apiClient.get("/configs/load", {
+            params: { name: "site" },
+          });
+          const parsedJson = JSON.parse(res.data.json);
+          setSections(parsedJson);
+        } catch (err) {
+          console.error("Ошибка загрузки конфига:", err);
+        } finally {
+          setIsDataLoading(false);
+        }
+      };
+      loadConfig();
+    }
+  }, [authLoading, user]);
+
+  useEffect(() => {
+    setJsonInput(JSON.stringify(sections, null, 2));
+  }, [sections]);
+
+  const saveConfig = async () => {
+    try {
+      await apiClient.post("/configs/save", {
+        name: "site",
+        json: JSON.stringify(sections)
+      });
+      alert("Сохранено успешно!");
+    } catch (err) {
+      alert("Ошибка сохранения");
+    }
+  };
+
+  if (authLoading || isDataLoading) {
+    return (
+      <div className="min-h-screen w-full bg-white flex items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="w-12 h-12 border-4 border-slate-950 border-t-transparent rounded-full animate-spin" />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+            {authLoading ? "Авторизация..." : "Загрузка контента..."}
+          </span>
+        </motion.div>
+      </div>
+    );
+  }
 
   const downloadJson = () => {
     const blob = new Blob([jsonInput], { type: "application/json" });
@@ -179,39 +246,20 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-slate-50/50 flex flex-col md:flex-row text-slate-900 select-none">
-      <aside className="w-full md:w-64 border-r border-slate-200 bg-white p-8 flex flex-col justify-between shrink-0">
-        <div className="flex flex-col gap-10">
-          <div>
-            <span className="text-[10px] font-black uppercase text-slate-400 block mb-1">
-              CMS Panel
-            </span>
-            <div className="font-bold text-xl tracking-wider text-slate-950">
-              AT.ADMIN
-            </div>
-          </div>
-          <nav className="flex flex-col gap-2">
-            <button className="w-full px-4 py-3 bg-slate-950 text-white rounded-xl text-left text-xs font-bold uppercase tracking-wider">
-              Контент сайта
-            </button>
-          </nav>
-        </div>
-        <button
-          onClick={() => (window.location.href = "/cms/auth")}
-          className="w-full py-3.5 border border-slate-200 hover:bg-slate-950 hover:text-white rounded-xl text-xs font-bold uppercase transition-all"
-        >
-          Выйти
-        </button>
-      </aside>
+      <Sidebar />
 
       <main className="grow p-8 md:p-12 w-full max-w-5xl">
-        <div className="border-b border-slate-200 pb-8 mb-10">
-          <h1 className="text-3xl font-bold uppercase tracking-tight text-slate-950">
-            Управление контентом сайта
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Редактируйте содержимое сайта, добавляйте новые блоки и управляйте
-            ими в реальном времени.
-          </p>
+        <div className="border-b border-slate-200 pb-8 mb-10 flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-bold uppercase tracking-tight text-slate-950">Редактор</h1>
+            <p className="text-slate-400 text-sm mt-1">Привет, {user?.username}. Управляй контентом здесь.</p>
+          </div>
+          <button 
+            onClick={saveConfig}
+            className="px-6 py-3 bg-slate-950 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-indigo-100"
+          >
+            Опубликовать
+          </button>
         </div>
 
         <Reorder.Group

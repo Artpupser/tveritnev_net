@@ -1,6 +1,6 @@
 ---
 import MainLayout from "@/layouts/MainLayout.astro";
-import DashboardComponent from "@/components/cms/Dashboard";
+import SecurityComponent from "@/components/cms/Security";
 ---
 
 <MainLayout
@@ -8,5 +8,5 @@ import DashboardComponent from "@/components/cms/Dashboard";
   showHeader={false}
   showFooter={false}
 >
-  <DashboardComponent client:load />
+  <SecurityComponent client:load />
 </MainLayout>
