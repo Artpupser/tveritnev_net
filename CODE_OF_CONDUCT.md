@@ -26,7 +26,7 @@ We, as contributors and maintainers of **tveritnev_net**, pledge to make partici
 
 ## Scope
 
-This Code of Conduct applies within all project spaces — Issues, Pull Requests, Discussions, and any other channels related to **template**.
+This Code of Conduct applies within all project spaces — Issues, Pull Requests, Discussions, and any other channels related to **tveritnev_net**.
 
 ---
 

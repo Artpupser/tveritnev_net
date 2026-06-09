@@ -1,17 +1,192 @@
 ---
+import MainLayout from "../layouts/MainLayout.astro";
+import SectionRenderer from "../components/SectionRenderer.astro";
+import type { SectionData } from "../types/landing";
 
+const pageDataFromBackend = {
+  config: {
+    title: "Лендинг Tveritnev",
+    showHeader: false,
+    showFooter: true,
+  },
+  sections: [
+    {
+      type: "hero",
+      props: {
+        title: "Какой то текст",
+        description: "Очень длинное описание которое только можно придумать.",
+        buttonText: "Смотреть",
+        videoUrl: "/hero-bg.mp4",
+      },
+    },
+    {
+      type: "about",
+      props: {
+        name: "Anatoly Tveritnev",
+        avatarUrl: "/about_photo.jpg",
+        skills: [
+          "Английский с нуля",
+          "Разговорный клуб",
+          "Для путешествий",
+          "Индивидуальный подход",
+        ],
+        badges: [
+          "Пешие прогулки по Рязани",
+          "Исторические гиды",
+          "Необычные маршруты",
+          "Индивидуальный трансфер",
+        ],
+        socials: [
+          { name: "VK", url: "https://vk.com/tveritnev_rules" },
+          { name: "MAX", url: "https://vk.com/tveritnev_rules" },
+          { name: "TG", url: "https://t.me/Username" },
+        ],
+      },
+    },
+    {
+      type: "serviceSwitcher",
+      props: {
+        english: {
+          title: "Курсы Английского Языка",
+          description: "Индивидуальные занятия для любого уровня.",
+          phone: "+7 999 123 45 67",
+          vkUrl: "https://vk.com/tveritnev_rules",
+          maxUrl: "#",
+          tgUrl: "https://t.me/Username",
+          plans: [
+            {
+              name: "Начальный",
+              price: "25 500₽/мес",
+              features: [
+                "Основы грамматики",
+                "Постановка произношения",
+                "Домашние задания",
+              ],
+            },
+            {
+              name: "Профессионал",
+              price: "45 500₽/мес",
+              features: [
+                "Разговорный английский",
+                "Бизнес-лексика",
+                "Подготовка к собеседованиям",
+                "Поддержка 24/7",
+              ],
+            },
+          ],
+        },
+        guide: {
+          title: "Экскурсии по Рязани",
+          description:
+            "Уникальные авторские маршруты и полное погружение в историю города.",
+          phone: "+7 999 777 77 77",
+          vkUrl: "https://vk.com/tveritnev_rules",
+          maxUrl: "#",
+          tgUrl: "https://t.me/Username",
+          plans: [
+            {
+              name: "Уикенд",
+              price: "5 000₽",
+              features: [
+                "Пешая прогулка (3 часа)",
+                "Исторический центр",
+                "Чайная церемония",
+              ],
+            },
+            {
+              name: "Экспедиция",
+              price: "890 000₽",
+              features: [
+                "Трансфер на Майбахе",
+                "Индивидуальный маршрут",
+                "Обед в ресторане",
+                "Профессиональный фотограф",
+              ],
+            },
+          ],
+        },
+      },
+    },
+    {
+      type: "reviews",
+      props: {
+        title: "Отзывы",
+        row1: [
+          {
+            text: "Анатолий — лучший препод, заговорил за месяц!",
+            author: "Никита",
+          },
+          {
+            text: "Уроки английского проходят на одном дыхании",
+            author: "Мария",
+          },
+          { text: "Наконец-то я понял времена в английском", author: "Артем" },
+        ],
+        row2: [
+          {
+            text: "Экскурсия по Рязани на Майбахе — это разрыв!",
+            author: "Егор",
+          },
+          {
+            text: "Очень крутые исторические факты, никакой скуки",
+            author: "Юлия",
+          },
+          {
+            text: "Рязань открылась совершенно с другой стороны",
+            author: "Алексей",
+          },
+        ],
+        row3: [
+          {
+            text: "Совмещаем инглиш и прогулки, это супер формат",
+            author: "Ксения",
+          },
+          {
+            text: "Индивидуальный подход и классная атмосфера",
+            author: "Денис",
+          },
+          {
+            text: "Рекомендую всем, Анатолий мастер своего дела!",
+            author: "Ольга",
+          },
+        ],
+      },
+    },
+    {
+      type: "faq",
+      props: {
+        title: "Частые вопросы",
+        items: [
+          {
+            question: "Как совместить изучение английского и экскурсию?",
+            answer:
+              "Очень просто! Мы можем провести экскурсию полностью на английском языке. Это идеальный формат погружения (языковая практика + крутые исторические места Рязани). Программа подстраивается под твой уровень.",
+          },
+          {
+            question: "Каковы условия для поездки на Майбахе?",
+            answer:
+              "Трансфер на Майбахе входит в тариф 'Экспедиция'. Мы заберем тебя прямо от дома или отеля в Рязани, довезем до всех локаций в комфорте и вернем обратно. Во время поездки работает профессиональный гид.",
+          },
+          {
+            question: "Занятия по английскому проходят индивидуально?",
+            answer:
+              "Да, все занятия строятся по персональной программе под твои цели: будь то подготовка к экзаменам, разговорная практика для путешествий или бизнес-английский. График составляется индивидуально.",
+          },
+        ],
+      },
+    },
+  ] as SectionData[],
+};
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Tveritnev Web</title>
-	</head>
-	<body>
-		<h1>Tveritnev Web</h1>
-	</body>
-</html>
+<MainLayout
+  title={pageDataFromBackend.config.title}
+  showHeader={pageDataFromBackend.config.showHeader}
+  showFooter={pageDataFromBackend.config.showFooter}
+>
+  {
+    pageDataFromBackend.sections.map((section) => (
+      <SectionRenderer section={section} />
+    ))
+  }
+</MainLayout>
