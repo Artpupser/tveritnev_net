@@ -1,100 +1,562 @@
-﻿<div align="center">
+﻿# 📡 TveritnevNet — API Documentation
 
-# 🏗️ tveritnev_net
-
-![License](https://img.shields.io/badge/MIT-black?style=for-the-badge)
-![React](https://img.shields.io/badge/react-black.svg?style=for-the-badge&logo=react&logoColor=white)
-![Typescript](https://img.shields.io/badge/typescript-black.svg?style=for-the-badge&logo=typescript&logoColor=white)
-![Tailwindcss](https://img.shields.io/badge/tailwindcss-black.svg?style=for-the-badge&logo=tailwindcss&logoColor=white)
-![Astro](https://img.shields.io/badge/astro-black.svg?style=for-the-badge&logo=astro&logoColor=white)
-![Dotnet](https://img.shields.io/badge/.NET-black?style=for-the-badge&logo=dotnet&logoColor=white)
-![C#](https://img.shields.io/badge/C%23-black.svg?style=for-the-badge&logo=csharp&logoColor=white)
-![PupaMVCF](https://img.shields.io/badge/PupaMVCF-black.svg?style=for-the-badge&logo=dotnet&logoColor=white)
-![Postgresql](https://img.shields.io/badge/Postgre%20sql-black.svg?style=for-the-badge&logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/docker-black.svg?style=for-the-badge&logo=docker&logoColor=white)
-![Nginx](https://img.shields.io/badge/nginx-black.svg?style=for-the-badge&logo=nginx&logoColor=white)
-
-<!-- ![.NET](https://img.shields.io/badge/.NET-10.0-blue?style=for-the-badge) -->
-<!-- ![.Version](https://img.shields.io/github/v/release/Artpupser/Template?style=for-the-badge) -->
-
-
-#### [tveritnev_net](https://github.com/Artpupser/tveritnev_net) is tveritnev_net, lending for anatoly_tveritnev. 🎯
-
-<img src="https://github.com/Artpupser/tveritnev_net/blob/main/assets/banner.jpg" style="border-radius: 20px; max-height: 500px">
-
-</div>
+> Backend-сервер для лендинга Анатолия Тверитнева.
 
 ---
-## 📎 Navigation
 
-<!-- - [✨ Features](#-features) -->
-- [🧵 Launch](#-usage)
-- [👀 Preview](#-usage)
-- [📦 Dependencies](#-dependencies)
-- [🗃️ Devlog](#devlog)
-- [⚖️️ License](#-license)
+## 🗺️ Все эндпоинты
 
+| Метод | Путь (backend) | Путь (nginx) | Доступ | Описание |
+|-------|----------------|--------------|--------|----------|
+| `GET` | `/configs/load` | `/api/configs/load` | 🔐 Admin | Загрузить конфиг по имени |
+| `GET` | `/configs/site` | `/api/configs/site` | 🔓 Публичный | Загрузить конфиг главной страницы |
+| `GET` | `/configs/default` | `/api/configs/default` | 🔐 Admin | Загрузить дефолтный конфиг |
+| `POST` | `/configs/save` | `/api/configs/save` | 🔐 Admin | Сохранить конфиг |
+| `GET` | `/users/me` | `/api/users/me` | 👤 Member | Данные текущего пользователя |
+| `GET` | `/users/me/role` | `/api/users/me/role` | 👤 Member | Роль текущего пользователя |
+| `GET` | `/users/me/username` | `/api/users/me/username` | 👤 Member | Юзернейм текущего пользователя |
+| `GET` | `/users/me/id` | `/api/users/me/id` | 👤 Member | ID текущего пользователя |
+| `POST` | `/users/login` | `/api/users/login` | 🔓 Публичный | Авторизация пользователя |
+| `POST` | `/users/change_password` | `/api/users/change_password` | 👤 Member | Смена пароля |
+| `POST` | `/users/logout` | `/api/users/logout` | 👤 Member | Выход из аккаунта |
+| `POST` | `/images/create` | `/api/images/create` | 🔐 Admin | Загрузить изображение |
+| `POST` | `/images/delete` | `/api/images/delete` | 🔐 Admin | Удалить изображение |
+| `GET` | — | `/static/{name}` | 🔓 Публичный | Получить изображение из `public/` |
 
-<!-- ## ✨️ Features
+---
 
-<div align="center">
+## ⚙️ Configs Controller
 
-| 🏆 Feature                  | 📝 Description                                                                |
-| --------------------------- | ----------------------------------------------------------------------------- |
-| Feature | Description             |
+### `GET /configs/load`
 
-</div> -->
+Загружает конфиг по имени. Имя не должно содержать слова `admin`, `moderator`, `default`.
 
-## 🧵 Launch
+**Авторизация:** 🔐 Admin (Bearer JWT)
 
-1. Build client
+**Query-параметры:**
 
-```bash
-cd ./frontend
-pnpm run build
-cd ../frontend
+| Поле | Тип | Правила |
+|------|-----|---------|
+| `name` | `string` | Обязательно, длина 1–32 символа |
+
+**Response:**
+
+```json
+{
+  "id": 1,
+  "name": "site",
+  "json": "{...}"
+}
 ```
 
-2. Run docker
+**Ошибки:**
 
-```bash
-docker compose up --build
+| Причина | Описание |
+|---------|----------|
+| `!200` | Нет прав / истёкшая сессия |
+| `400` | Поля не прошли валидацию |
+| `!200` | Имя содержит запрещённые слова (`admin`, `moderator`, `default`) |
+| `!200` | Конфиг с таким именем не найден |
+
+---
+
+### `GET /configs/site`
+
+Загружает конфиг структуры сайта (запись с именем `site`). Параметры не принимает.
+
+**Авторизация:** Не требуется
+
+**Response:**
+
+```json
+{
+  "id": 1,
+  "name": "site",
+  "json": "{...}"
+}
 ```
 
-3. Go to link!
+**Ошибки:**
 
-## 👀 Preview
+| Причина | Описание |
+|---------|----------|
+| `!200` | Конфиг `site` не найден в БД |
 
-<div align="center">
+---
 
-<img src="https://github.com/Artpupser/tveritnev_net/blob/main/assets/preview1.jpg" style="border-radius: 20px;">
+### `GET /configs/default`
 
-</div>
+Загружает дефолтный конфиг (`default_{name}`). Только для администраторов.
 
-## 📦 Dependencies
+**Авторизация:** 🔐 Admin (Bearer JWT)
 
-- [@astrojs/react](https://github.com/withastro/astro/tree/main/packages/integrations/react)
-- [@tailwindcss/vite](https://github.com/tailwindlabs/tailwindcss)
-- [@types/react](https://github.com/DefinitelyTyped/DefinitelyTyped)
-- [@types/react-dom](https://github.com/DefinitelyTyped/DefinitelyTyped)
-- [astro](https://github.com/withastro/astro)
-- [react](https://github.com/facebook/react)
-- [react-dom](https://github.com/facebook/react)
-- [tailwindcss](https://github.com/tailwindlabs/tailwindcss)
-- [autoprefixer](https://github.com/postcss/autoprefixer)
-- [postcss](https://github.com/postcss/postcss)
-- [vite](https://github.com/vitejs/vite)
+**Query-параметры:**
 
+| Поле | Тип | Правила |
+|------|-----|---------|
+| `name` | `string` | Обязательно, длина 1–32 символа |
 
-## 🗃️ Devlog
+> Например, при `name=site` вернёт запись `default_site` из БД.
 
-### 0.0.1
-- init: project
-- add: environment frontend 
-- add: environment backend
-- add: database scheme
-- add: assets/banner.jpg
+**Response:**
 
-## ⚖️ License
+```json
+{
+  "id": 2,
+  "name": "default_site",
+  "json": "{...}"
+}
+```
 
-This project is licensed under the **MIT License**.
+**Ошибки:**
+
+| Причина | Описание |
+|---------|----------|
+| `!200` | Нет прав / истёкшая сессия |
+| `400` | Поля не прошли валидацию |
+| `!200` | Дефолтный конфиг не найден |
+
+---
+
+### `POST /configs/save`
+
+Перезаписывает JSON конфига по имени. Имя не должно содержать запрещённые слова.
+
+**Авторизация:** 🔐 Admin (Bearer JWT)
+
+**Request body:**
+
+```json
+{
+  "name": "site",
+  "json": "{\"key\": \"value\"}"
+}
+```
+
+**Модель `ConfigSaveModel`:**
+
+| Поле | Тип | Правила |
+|------|-----|---------|
+| `name` | `string` | Обязательно, длина 1–32 символа |
+| `json` | `string` | Обязательно, должен быть валидным JSON |
+
+**Response:**
+
+```
+Status: 200 OK
+Body: ""
+```
+
+**Ошибки:**
+
+| Причина | Описание |
+|---------|----------|
+| `!200` | Нет прав / истёкшая сессия |
+| `400` | Поля не прошли валидацию |
+| `!200` | Имя содержит запрещённые слова |
+| `!200` | Ошибка обновления в БД |
+
+---
+
+## 👤 Users Controller
+
+### `GET /users/me`
+
+Возвращает данные авторизованного пользователя.
+
+**Авторизация:** 👤 Member (Bearer JWT)
+
+**Response:**
+
+```json
+{
+  "username": "anatoly",
+  "role": "member",
+  "id": 1
+}
+```
+
+> Пароль в ответ **не включается**.
+
+---
+
+### `GET /users/me/role`
+
+Возвращает только роль текущего пользователя.
+
+**Авторизация:** 👤 Member (Bearer JWT)
+
+**Response:**
+
+```json
+{
+  "role": "member"
+}
+```
+
+---
+
+### `GET /users/me/username`
+
+Возвращает только юзернейм текущего пользователя.
+
+**Авторизация:** 👤 Member (Bearer JWT)
+
+**Response:**
+
+```json
+{
+  "username": "anatoly"
+}
+```
+
+---
+
+### `GET /users/me/id`
+
+Возвращает только ID текущего пользователя.
+
+**Авторизация:** 👤 Member (Bearer JWT)
+
+**Response:**
+
+```json
+{
+  "id": 1
+}
+```
+
+---
+
+### `POST /users/login`
+
+Авторизует пользователя, создаёт или обновляет сессию, возвращает JWT-токен.
+
+**Авторизация:** Не требуется
+
+**Request body:**
+
+```json
+{
+  "username": "anatoly",
+  "password": "secret"
+}
+```
+
+**Модель `LoginModel`:**
+
+| Поле | Тип | Правила |
+|------|-----|---------|
+| `username` | `string` | Обязательно, длина 1–128 символов |
+| `password` | `string` | Обязательно, длина 1–128 символов |
+
+> Пароль передаётся в открытом виде — хэширование (SHA-256) происходит на сервере.
+
+**Логика сессии:** если у пользователя уже есть активная сессия — токен обновляется (`Regenerate`), иначе создаётся новая запись (`Create`).
+
+**Response:**
+
+```json
+{
+  "token": "<jwt-токен>"
+}
+```
+
+**Ошибки:**
+
+| Причина | Описание |
+|---------|----------|
+| `400` | Поля не прошли валидацию |
+| `!200` | Неверный логин или пароль |
+
+---
+
+### `POST /users/change_password`
+
+Меняет пароль авторизованного пользователя.
+
+**Авторизация:** 👤 Member (Bearer JWT)
+
+**Request body:**
+
+```json
+{
+  "current_password": "old_secret",
+  "new_password": "new_secret",
+  "repeat_password": "new_secret"
+}
+```
+
+**Модель `ChangePasswordModel`:**
+
+| Поле | Тип | Правила |
+|------|-----|---------|
+| `current_password` | `string` | Обязательно, длина 1–128 символов |
+| `new_password` | `string` | Обязательно, длина 1–128 символов |
+| `repeat_password` | `string` | Обязательно, длина 1–128 символов |
+
+**Response:**
+
+```
+Status: 200 OK
+Body: ""
+```
+
+**Ошибки:**
+
+| Причина | Описание |
+|---------|----------|
+| `400` | Поля не прошли валидацию |
+| `!200` | Текущий пароль неверен |
+| `!200` | `new_password` и `repeat_password` не совпадают |
+| `!200` | Ошибка обновления в БД |
+
+---
+
+### `POST /users/logout`
+
+Завершает сессию текущего пользователя (удаляет запись из таблицы `session`).
+
+**Авторизация:** 👤 Member (Bearer JWT)
+
+**Request body:** не требуется
+
+**Response:**
+
+```
+Status: 200 OK
+Body: "success"  (или "" если сессия не найдена)
+```
+
+---
+
+## 🖼️ Images Controller
+
+### `POST /images/create`
+
+Загружает изображение на сервер и сохраняет запись в БД. Файл сохраняется в `public/`.
+
+**Авторизация:** 🔐 Admin (Bearer JWT)
+
+**Request body:**
+
+```json
+{
+  "name": "avatar.png",
+  "image": "<байты изображения>"
+}
+```
+
+**Модель `ImageLoadModel`:**
+
+| Поле | Тип | Правила |
+|------|-----|---------|
+| `name` | `string` | Обязательно, длина 1–32 символа |
+| `image` | `byte[]` | Обязательно, должен быть валидным изображением (проверяется через ImageSharp) |
+
+**Response:**
+
+```
+Status: 200 OK
+Body: ""
+```
+
+**Ошибки:**
+
+| Причина | Описание |
+|---------|----------|
+| `!200` | Нет прав / истёкшая сессия |
+| `400` | Переданные данные не являются изображением |
+| `!200` | Ошибка записи файла или сохранения в БД |
+
+---
+
+### `POST /images/delete`
+
+Удаляет изображение с диска и из БД.
+
+**Авторизация:** 🔐 Admin (Bearer JWT)
+
+**Request body:**
+
+```json
+{
+  "name": "avatar.png"
+}
+```
+
+**Модель `ImageDeleteModel`:**
+
+| Поле | Тип | Правила |
+|------|-----|---------|
+| `name` | `string` | Обязательно, длина 1–32 символа |
+
+**Response:**
+
+```
+Status: 200 OK
+Body: ""
+```
+
+**Ошибки:**
+
+| Причина | Описание |
+|---------|----------|
+| `!200` | Нет прав / истёкшая сессия |
+| `!200` | Ошибка удаления файла или записи в БД |
+
+---
+
+## 🔐 Авторизация и роли
+
+### Роли пользователей
+
+| Роль | Значение | Описание |
+|------|----------|----------|
+| `member` | `0` | Обычный пользователь |
+| `admin` | `1` | Администратор, доступ ко всем эндпоинтам |
+
+> Роль `admin` включает в себя все права `member`.
+
+### Схема аутентификации
+
+Используется **JWT Bearer Token**:
+
+1. Клиент отправляет `POST /users/login` — в ответ получает `token`
+2. Токен передаётся в заголовке `Authorization: Bearer <token>` для защищённых эндпоинтов
+3. `UserSessionMiddleware` при каждом запросе:
+   - Извлекает токен из Bearer-заголовка
+   - Ищет сессию по токену в таблице `session`
+   - Проверяет совпадение `user_id` с `id` из JWT claims
+   - Проверяет роль пользователя (`Role >= требуемой`)
+   - Кладёт `UserDatabaseModel` и `SessionDatabaseModel` в `FeatureCollection` запроса
+
+**Срок жизни JWT:** 7 дней.  
+**Срок жизни сессии в БД:** 10 дней с момента создания.
+
+> ⚠️ Истечение сессии (`expired_at`) в middleware **не проверяется** — проверяется только наличие записи в БД. Метод `IsExpired()` на модели есть, но в middleware не вызывается.
+
+---
+
+## 🗄️ Структура базы данных
+
+### Таблица `users`
+
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| `id` | `int` | Первичный ключ |
+| `username` | `string` | Логин пользователя |
+| `password` | `string` | SHA-256 хэш пароля |
+| `role` | `user_role` | Роль: `member` или `admin` |
+
+### Таблица `session`
+
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| `id` | `int` | Первичный ключ |
+| `user_id` | `int` | ID пользователя |
+| `token` | `string` | JWT-токен сессии |
+| `created_at` | `DateTimeOffset` | Дата создания |
+| `updated_at` | `DateTimeOffset` | Дата последнего обновления |
+| `expired_at` | `DateTimeOffset` | Дата истечения (+10 дней от создания) |
+
+### Таблица `configs`
+
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| `id` | `int` | Первичный ключ |
+| `name` | `string` | Уникальное имя конфига |
+| `json` | `string` | JSON-содержимое конфига |
+
+### Таблица `images`
+
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| `id` | `int` | Первичный ключ |
+| `name` | `string` | Имя файла изображения |
+
+---
+
+## 🚀 Инициализация при запуске
+
+`DatabaseInitializator` запускается автоматически через `TveritnevNetAppBootstrap`:
+
+**1. Создание администратора** — если пользователя с `ADMIN_USERNAME` нет в таблице `users`:
+- Логин из переменной окружения `ADMIN_USERNAME`
+- Пароль из `ADMIN_PASSWORD` (в открытом виде, хэшируется при записи как SHA-256)
+
+**2. Создание конфигов** — для каждого из `site` и `settings`:
+- Читает файл `public/default.{name}.json`
+- Создаёт запись `default_{name}` (эталонный дефолт, не изменяется пользователем)
+- Создаёт запись `{name}` (рабочий конфиг)
+
+**Переменные окружения:**
+
+| Переменная | Описание |
+|------------|----------|
+| `ADMIN_USERNAME` | Логин администратора по умолчанию |
+| `ADMIN_PASSWORD` | Пароль администратора (в открытом виде, хэшируется при записи) |
+
+---
+
+## 🌐 Nginx — маршрутизация
+
+Сервер слушает порт `80`. Все запросы распределяются по трём блокам:
+
+| Путь | Назначение | Описание |
+|------|-----------|----------|
+| `/api/*` | Backend (`:50501`) | Проксируется на бэкенд, префикс `/api` обрезается |
+| `/static/*` | Статические файлы | Отдаёт файлы из `public/`, только изображения |
+| `/*` | Frontend (SPA) | Отдаёт `index.html` для всех неизвестных путей |
+
+### `/api/` → Backend
+
+```nginx
+location /api/ {
+    proxy_pass http://backend:50501/;
+}
+```
+
+Все API-запросы идут с префиксом `/api/`. Nginx обрезает его при проксировании.
+
+**Пример:** `GET /api/configs/site` → `GET http://backend:50501/configs/site`
+
+### `/static/` → Публичные файлы
+
+```nginx
+location /static/ {
+    alias /usr/share/nginx/html/public/;
+}
+```
+
+Отдаёт файлы из директории `public/` (туда же `ImageRepository` сохраняет загруженные изображения).
+
+**Доступные форматы:** `jpg`, `jpeg`, `png`, `gif`, `webp`, `svg` — любой другой тип вернёт `403 Forbidden`.
+
+**Пример:** `GET /static/avatar.png` → файл `/usr/share/nginx/html/public/avatar.png`
+
+### `/` → Frontend (SPA)
+
+```nginx
+location / {
+    root /usr/share/nginx/html;
+    try_files $uri /index.html;
+}
+```
+
+Все остальные пути отдают фронтенд. Если файл не найден — возвращается `index.html` (стандартный SPA-роутинг).
+
+---
+
+## 📋 Логирование
+
+Каждый запрос через `ModifyLoggerMiddleware` логирует:
+
+```
+REQUEST:
+    Token: <значение cookie Token>
+    Path:  <путь запроса>
+    IpV4:  <IP-адрес клиента>
+```
+
+При ошибках аутентификации в `UserSessionMiddleware` пишется `LogError` с JWT ID пользователя.
