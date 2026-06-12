@@ -5,18 +5,23 @@ using SixLabors.ImageSharp;
 
 namespace TveritnevNet.App.Validators;
 
-public sealed class ImageValidatorModule : IValidatorModule {
-   public Task<bool> Valid(object? instance, string options, Request request, Response response,
-      CancellationToken cancellationToken) {
-      try {
-         if (instance is not byte[] bytes) return Task.FromResult(false);
-         Image.Identify(bytes);
-         return Task.FromResult(true);
-      } catch {
-         return Task.FromResult(false);
-      }
-   }
+[InitializatorEye(true)]
+public sealed class ImageValidatorModule(ValidatorManager validatorManager) : ValidatorModule(validatorManager)
+{
+    public override Task<bool> Valid(object? instance, string options, Request request, Response response,
+       CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (instance is not byte[] bytes) return Task.FromResult(false);
+            Image.Identify(bytes);
+            return Task.FromResult(true);
+        } catch
+        {
+            return Task.FromResult(false);
+        }
+    }
 
-   public string RuleId => "img";
-   public string Message => "This field not image";
+    public override string RuleId => "img";
+    public override string Message => "This field not image";
 }

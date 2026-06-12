@@ -1,10 +1,13 @@
+using Microsoft.Extensions.Logging;
 using PupaMVCF.Framework.Database;
 
-using TveritnevNet.App.Models.Database;
+using TveritnevNet.App.Models.Enums;
 
 namespace TveritnevNet.App.Middleware;
 
-public sealed class AdminSessionMiddleware(IDatabaseConnectionFactory databaseConnectionFactory)
-   : UserSessionMiddleware(databaseConnectionFactory) {
-   protected override UserDatabaseRole Role => UserDatabaseRole.Admin;
+[InitializatorEye(true)]
+public sealed class AdminSessionMiddleware(IDatabaseConnectionFactory databaseConnectionFactory, ILogger<UserSessionMiddleware> logger)
+   : UserSessionMiddleware(databaseConnectionFactory, logger)
+{
+    protected override UserDatabaseRole Role => UserDatabaseRole.Admin;
 }
