@@ -8,27 +8,33 @@ const AuthForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const COOKIE_NAME = "access_token";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
     try {
-      const generatedToken = crypto.randomUUID();
-
-      document.cookie = `Token=${generatedToken}; path=/; max-age=864000; SameSite=Lax`;
-
-      await apiClient.post("/users/login", {
+      const response = await apiClient.post("/users/login", {
         username: login,
         password: password,
       });
 
-      window.location.href = "/cms/dashboard";
+      const token = response.data.token;
+
+      if (token) {
+        document.cookie = `${COOKIE_NAME}=${token}; path=/; max-age=864000; SameSite=Lax`;
+
+        window.location.href = "/cms/dashboard";
+      } else {
+        throw new Error("Токен не получен от сервера");
+      }
     } catch (err) {
-      document.cookie = "Token=; path=/; max-age=0";
+      document.cookie = "${COOKIE_NAME}=; path=/; max-age=0";
 
       if (axios.isAxiosError(err)) {
-        const serverMessage = err.response?.data;
+        const serverMessage = err.response?.data?.message || err.response?.data;
         setError(
           typeof serverMessage === "string"
             ? serverMessage
