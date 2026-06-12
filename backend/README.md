@@ -1,4 +1,4 @@
-# 📡 TveritnevNet — API Documentation
+﻿# 📡 TveritnevNet — API Documentation
 
 > Backend-сервер для лендинга Анатолия Тверитнева.
 
@@ -6,21 +6,22 @@
 
 ## 🗺️ Все эндпоинты
 
-| Метод | Путь | Доступ | Описание |
-|-------|------|--------|----------|
-| `GET` | `/configs/load` | 🔐 Admin | Загрузить конфиг по имени |
-| `GET` | `/configs/site` | 🔓 Публичный | Загрузить конфиг главной страницы |
-| `GET` | `/configs/default` | 🔐 Admin | Загрузить дефолтный конфиг |
-| `POST` | `/configs/save` | 🔐 Admin | Сохранить конфиг |
-| `GET` | `/users/me` | 👤 Member | Данные текущего пользователя |
-| `GET` | `/users/me/role` | 👤 Member | Роль текущего пользователя |
-| `GET` | `/users/me/username` | 👤 Member | Юзернейм текущего пользователя |
-| `GET` | `/users/me/id` | 👤 Member | ID текущего пользователя |
-| `POST` | `/users/login` | 🔓 Публичный | Авторизация пользователя |
-| `POST` | `/users/change_password` | 👤 Member | Смена пароля |
-| `POST` | `/users/logout` | 👤 Member | Выход из аккаунта |
-| `POST` | `/images/create` | 🔐 Admin | Загрузить изображение |
-| `POST` | `/images/delete` | 🔐 Admin | Удалить изображение |
+| Метод | Путь (backend) | Путь (nginx) | Доступ | Описание |
+|-------|----------------|--------------|--------|----------|
+| `GET` | `/configs/load` | `/api/configs/load` | 🔐 Admin | Загрузить конфиг по имени |
+| `GET` | `/configs/site` | `/api/configs/site` | 🔓 Публичный | Загрузить конфиг главной страницы |
+| `GET` | `/configs/default` | `/api/configs/default` | 🔐 Admin | Загрузить дефолтный конфиг |
+| `POST` | `/configs/save` | `/api/configs/save` | 🔐 Admin | Сохранить конфиг |
+| `GET` | `/users/me` | `/api/users/me` | 👤 Member | Данные текущего пользователя |
+| `GET` | `/users/me/role` | `/api/users/me/role` | 👤 Member | Роль текущего пользователя |
+| `GET` | `/users/me/username` | `/api/users/me/username` | 👤 Member | Юзернейм текущего пользователя |
+| `GET` | `/users/me/id` | `/api/users/me/id` | 👤 Member | ID текущего пользователя |
+| `POST` | `/users/login` | `/api/users/login` | 🔓 Публичный | Авторизация пользователя |
+| `POST` | `/users/change_password` | `/api/users/change_password` | 👤 Member | Смена пароля |
+| `POST` | `/users/logout` | `/api/users/logout` | 👤 Member | Выход из аккаунта |
+| `POST` | `/images/create` | `/api/images/create` | 🔐 Admin | Загрузить изображение |
+| `POST` | `/images/delete` | `/api/images/delete` | 🔐 Admin | Удалить изображение |
+| `GET` | — | `/static/{name}` | 🔓 Публичный | Получить изображение из `public/` |
 
 ---
 
@@ -498,6 +499,55 @@ Body: ""
 
 ---
 
+## 🌐 Nginx — маршрутизация
+
+Сервер слушает порт `80`. Все запросы распределяются по трём блокам:
+
+| Путь | Назначение | Описание |
+|------|-----------|----------|
+| `/api/*` | Backend (`:50501`) | Проксируется на бэкенд, префикс `/api` обрезается |
+| `/static/*` | Статические файлы | Отдаёт файлы из `public/`, только изображения |
+| `/*` | Frontend (SPA) | Отдаёт `index.html` для всех неизвестных путей |
+
+### `/api/` → Backend
+
+```nginx
+location /api/ {
+    proxy_pass http://backend:50501/;
+}
+```
+
+Все API-запросы идут с префиксом `/api/`. Nginx обрезает его при проксировании.
+
+**Пример:** `GET /api/configs/site` → `GET http://backend:50501/configs/site`
+
+### `/static/` → Публичные файлы
+
+```nginx
+location /static/ {
+    alias /usr/share/nginx/html/public/;
+}
+```
+
+Отдаёт файлы из директории `public/` (туда же `ImageRepository` сохраняет загруженные изображения).
+
+**Доступные форматы:** `jpg`, `jpeg`, `png`, `gif`, `webp`, `svg` — любой другой тип вернёт `403 Forbidden`.
+
+**Пример:** `GET /static/avatar.png` → файл `/usr/share/nginx/html/public/avatar.png`
+
+### `/` → Frontend (SPA)
+
+```nginx
+location / {
+    root /usr/share/nginx/html;
+    try_files $uri /index.html;
+}
+```
+
+Все остальные пути отдают фронтенд. Если файл не найден — возвращается `index.html` (стандартный SPA-роутинг).
+
+---
+
 ## 📋 Логирование
 
 Каждый запрос через `ModifyLoggerMiddleware` логирует:
@@ -510,3 +560,4 @@ REQUEST:
 ```
 
 При ошибках аутентификации в `UserSessionMiddleware` пишется `LogError` с JWT ID пользователя.
+
