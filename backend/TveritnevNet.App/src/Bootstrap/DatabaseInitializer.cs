@@ -9,40 +9,32 @@ using PupaMVCF.Framework.Core;
 
 namespace TveritnevNet.App.Bootstrap;
 
-public sealed class DatabaseInitializator
-{
-    private readonly IDatabaseConnectionFactory _connectionFactory;
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<DatabaseInitializator> _logger;
-    private readonly PublicFolder _publicFolder;
+public sealed class DatabaseInitializer(
+   IDatabaseConnectionFactory connectionFactory,
+   PublicFolder publicFolder,
+   IConfiguration configuration,
+   ILogger<DatabaseInitializer> logger) {
 
-    public DatabaseInitializator(IDatabaseConnectionFactory connectionFactory, PublicFolder publicFolder, IConfiguration configuration)
+   public async Task InitUsersInDatabase(CancellationToken cancellationToken)
     {
-        _connectionFactory = connectionFactory;
-        _configuration = configuration;
-        _publicFolder = publicFolder;
-    }
-
-    public async Task InitUsersInDatabase(CancellationToken cancellationToken)
-    {
-        var userRepo = new UserRepository(_connectionFactory);
-        var username = _configuration["ADMIN_USERNAME"] ??
+        var userRepo = new UserRepository(connectionFactory);
+        var username = configuration["ADMIN_USERNAME"] ??
                        throw new Exception("username admin not found in startup configuration");
         if (await userRepo.ExistsAsync("username", username, cancellationToken)) return;
-        var password = CryptoUtils.Sha256(_configuration["ADMIN_PASSWORD"] ??
+        var password = CryptoUtils.Sha256(configuration["ADMIN_PASSWORD"] ??
                                           throw new Exception("password admin not found in startup configuration"));
         await userRepo.CreateAdmin(username, password, cancellationToken);
     }
 
     public async Task InitConfigInDatabase(CancellationToken cancellationToken)
     {
-        var configsRepo = new ConfigsRepository(_connectionFactory);
+        var configsRepo = new ConfigsRepository(connectionFactory);
         var fileNames = new[] { "site", "settings" };
 
         foreach (var fileName in fileNames)
         {
             var fullFileName = $"default.{fileName}.json";
-            var fileOption = _publicFolder.Virtual.GetFileIn(fullFileName);
+            var fileOption = publicFolder.Virtual.GetFileIn(fullFileName);
             if (!fileOption.Out(out var file)) throw new Exception($"Default config not found, {fullFileName}");
 
             var jsonOption = await file.ReadStringAsync(cancellationToken);

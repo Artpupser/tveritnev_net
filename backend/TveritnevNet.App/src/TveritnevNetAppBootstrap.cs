@@ -7,7 +7,7 @@ namespace TveritnevNet;
 
 internal sealed class TveritnevNetAppBootstrap(IDatabaseConnectionFactory connectionFactory, PublicFolder publicFolder, IConfiguration configuration) : IWebAppBootstrap
 {
-    private readonly DatabaseInitializator _databaseInitializator = new(connectionFactory, publicFolder, configuration);
+    private readonly DatabaseInitializer _databaseInitializer = new(connectionFactory, publicFolder, configuration);
     public Queue<Func<Task>> Operations()
     {
         var queue = new Queue<Func<Task>>();
@@ -19,7 +19,7 @@ internal sealed class TveritnevNetAppBootstrap(IDatabaseConnectionFactory connec
     private async Task Operation()
     {
         var cts = new CancellationTokenSource();
-        await _databaseInitializator.InitUsersInDatabase(cts.Token);
-        await _databaseInitializator.InitConfigInDatabase(cts.Token);
+        await _databaseInitializer.InitUsersInDatabase(cts.Token);
+        await _databaseInitializer.InitConfigInDatabase(cts.Token);
     }
 }

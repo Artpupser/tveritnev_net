@@ -33,7 +33,7 @@ public sealed class ConfigsController : Controller
 
     #region GET
 
-    [ControllerHandler("/load", HttpMethodType.GET, typeof(ModifyLoggerMiddleware), typeof(AdminSessionMiddleware))]
+    [ControllerHandler("/load", HttpMethodType.POST, typeof(ModifyLoggerMiddleware), typeof(AdminSessionMiddleware))]
     private async Task GetConfigsLoadHandler(Request request, Response response, CancellationToken cancellationToken)
     {
         if (!(await _validatorManager.ValidFromRequest<ConfigLoadModel>(request, response, cancellationToken)).Out(
@@ -66,7 +66,7 @@ public sealed class ConfigsController : Controller
         response.WriteTJsonToCache(configsDatabaseModel);
     }
 
-    [ControllerHandler("/default", HttpMethodType.GET, typeof(ModifyLoggerMiddleware),
+    [ControllerHandler("/default", HttpMethodType.POST, typeof(ModifyLoggerMiddleware),
        typeof(AdminSessionMiddleware))]
     private async Task
        GetConfigsDefaultHandler(Request request, Response response, CancellationToken cancellationToken)

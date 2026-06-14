@@ -29,7 +29,7 @@ public abstract class UserSessionMiddleware(IDatabaseConnectionFactory databaseC
 
         if (!(await _sessionRepo.WhereOneAsync("token", token, cancellationToken)).Out(out var sessionDatabaseModel))
         {
-            response.PushError("Session unedfined.");
+            response.PushError("Session undefined.");
             return Option.Fail();
         }
 
