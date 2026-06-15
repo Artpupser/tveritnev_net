@@ -3,10 +3,6 @@ import MainLayout from "@/layouts/MainLayout.astro";
 import SecurityComponent from "@/components/cms/Security";
 ---
 
-<MainLayout
-  title="CMS | Редактор"
-  showHeader={false}
-  showFooter={false}
->
+<MainLayout title="CMS | Безопасность" showHeader={false} showFooter={false}>
   <SecurityComponent client:load />
 </MainLayout>

@@ -12,8 +12,9 @@ namespace TveritnevNet.App.Bootstrap;
 public sealed class DatabaseInitializer(
    IDatabaseConnectionFactory connectionFactory,
    PublicFolder publicFolder,
-   IConfiguration configuration,
-   ILogger<DatabaseInitializer> logger) {
+   IConfiguration configuration)
+// ILogger<DatabaseInitializer> logger) 
+   {
 
    public async Task InitUsersInDatabase(CancellationToken cancellationToken)
     {

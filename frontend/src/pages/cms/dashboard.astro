@@ -3,10 +3,6 @@ import MainLayout from "@/layouts/MainLayout.astro";
 import DashboardComponent from "@/components/cms/Dashboard";
 ---
 
-<MainLayout
-  title="CMS | Редактор"
-  showHeader={false}
-  showFooter={false}
->
+<MainLayout title="CMS | Редактор" showHeader={false} showFooter={false}>
   <DashboardComponent client:load />
 </MainLayout>

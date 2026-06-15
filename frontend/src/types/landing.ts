@@ -61,9 +61,9 @@ export interface FAQProps {
   items: FAQItem[];
 }
 
-export type SectionData = 
-  | { type: 'hero'; props: HeroProps }
-  | { type: 'about'; props: AboutProps }
-  | { type: 'serviceSwitcher'; props: ServiceSwitcherProps }
-  | { type: 'reviews'; props: ReviewsProps }
-  | { type: 'faq'; props: FAQProps };
+export type SectionData =
+  | { type: "hero"; props: HeroProps }
+  | { type: "about"; props: AboutProps }
+  | { type: "serviceSwitcher"; props: ServiceSwitcherProps }
+  | { type: "reviews"; props: ReviewsProps }
+  | { type: "faq"; props: FAQProps };

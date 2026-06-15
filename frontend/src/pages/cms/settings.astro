@@ -1,0 +1,8 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import SettingsComponent from "@/components/cms/Security";
+---
+
+<MainLayout title="CMS | Настройки" showHeader={false} showFooter={false}>
+  <SettingsComponent client:load />
+</MainLayout>

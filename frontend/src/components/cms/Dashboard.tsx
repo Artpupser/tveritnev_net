@@ -114,14 +114,14 @@ const Dashboard: React.FC = () => {
     if (!authLoading && user) {
       const loadConfig = async () => {
         try {
-          const res = await apiClient.get("/configs/site", {
-            params: { name: "site" },
+          const res = await apiClient.post("/configs/load", {
+            name: "site",
           });
           const parsedJson = JSON.parse(res.data.json);
 
           if (parsedJson.config) setPageConfig(parsedJson.config);
           if (parsedJson.sections) setSections(parsedJson.sections);
-          else setSections(parsedJson); // Fallback если бекенд вернул старый формат
+          else setSections(parsedJson);
         } catch (err) {
           console.error("Ошибка загрузки конфига:", err);
         } finally {
@@ -616,7 +616,6 @@ const SectionItem = ({
           >
             <div className="px-6 pb-6">
               <div className="pt-6 border-t border-slate-100 flex flex-col gap-6">
-                {/* HERO SECTION */}
                 {sec.type === "hero" && (
                   <div className="grid grid-cols-2 gap-4">
                     <Input
@@ -652,7 +651,6 @@ const SectionItem = ({
                   </div>
                 )}
 
-                {/* ABOUT SECTION */}
                 {sec.type === "about" && (
                   <div className="flex flex-col gap-6">
                     <div className="grid grid-cols-2 gap-4">
